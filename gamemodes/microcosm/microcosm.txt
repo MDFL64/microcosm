@@ -1,0 +1,7 @@
+"microcosm"
+{
+	"base"		"base"
+	"title"		"Dumb Roleplay Deathmatch"
+	"menusystem"	"1"
+	"maps"			"^micro_"
+}

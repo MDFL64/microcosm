@@ -4,6 +4,7 @@ ENT.Type = "anim"
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Entity", 0, "Ship")
+    self:NetworkVar("Int", 0, "MicroHealth")
     --self:SetNWVarProxy("Ship", function(_,old,new)
     --    print("rerr")
     --end)
@@ -13,6 +14,8 @@ function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
 end
 
+ENT.MaxMicroHealth = 1000
+
 function ENT:Initialize()
     self:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
 
@@ -20,10 +23,15 @@ function ENT:Initialize()
 
     if SERVER then
         self:GetPhysicsObject():EnableMotion(false)
+        self:SetMicroHealth(self.MaxMicroHealth)
     end
 end
 
 local matBlack = Material("tools/toolsblack")
+
+function ENT:GetMicroHealthDisplayName()
+    return "Hull & Engines"
+end
 
 if CLIENT then
     function ENT:Think()

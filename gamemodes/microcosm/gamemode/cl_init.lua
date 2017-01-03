@@ -60,6 +60,12 @@ end]]
 --print("==>")
 --print(airsup_ship_origin)
 
+function DoHurtScreenEffect(color,w,h)
+    for i=1,20 do
+        draw.SimpleText(string.char(math.random(33,126)),"DebugFixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+    end
+end
+
 function GM:PreRender()
     local ship_ent = Entity(MICRO_SHIP_ID or -1)
 
@@ -84,7 +90,8 @@ function GM:PreRender()
         render.RenderView{
             w=ScrW(),
             h=ScrH(),
-            drawviewmodel=true,
+            --drawviewmodel=true,
+            --fov=150,
             origin=cam_pos,
             angles=cam_ang,
             znear=0.1
@@ -93,23 +100,28 @@ function GM:PreRender()
 
         render.SuppressEngineLighting(true)
 
+        local main_hull = ship_ent:GetMainHull()
+
+
         render.SetModelLighting(BOX_FRONT, .1,.1,.1)
         render.SetModelLighting(BOX_BACK, .1,.1,.1)
         render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
         render.SetModelLighting(BOX_LEFT, .1,.1,.1)
-        render.SetModelLighting(BOX_TOP, 1,1,1)
+        if IsComponentHurt(main_hull) then
+            render.SetModelLighting(BOX_TOP, 1,0,0)
+        else
+            render.SetModelLighting(BOX_TOP, 1,1,1)
+        end
         render.SetModelLighting(BOX_BOTTOM, .1,.1,.1)
     else
         render.SuppressEngineLighting(false)
     end
 end
---[[
-Don't think this is needed.
-If lighting ever starts to break after disconnect, enable this.
 
+-- Failsafe to stop lighting from breaking when a client leaves.
 function GM:ShutDown()
     render.SuppressEngineLighting(false)
-end]]
+end
 
 -- This is a hack to fix gravity not being predicted correctly.
 --[[function GM:SetupMove(ply,mv,cmd)
@@ -142,13 +154,31 @@ function GM:CalcView(ply, pos, angles, fov)
     end
 end
 
-function GM:HUDPaint()
-    if IsValid(MICRO_CONTROLLING) then
+hook.Add("HUDPaint","micro_hud",function()
+    if !LocalPlayer():Alive() then
+        surface.SetDrawColor(Color( 0, 0, 0))
+        surface.DrawRect(0, 0, ScrW(), ScrH())
+        draw.SimpleText("You will respawn shortly.","DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+    elseif IsValid(MICRO_CONTROLLING) then
         if MICRO_CONTROLLING.controlHUD then
             MICRO_CONTROLLING:controlHUD()
         end
+    else
+        local tr = LocalPlayer():GetEyeTrace()
+        if tr.Fraction < .003 and IsValid(tr.Entity) and tr.Entity.GetMicroHudText then
+            local text = tr.Entity:GetMicroHudText()
+            local font = "DermaLarge"
+            
+            surface.SetFont(font)
+            local w,h = surface.GetTextSize(text)
+            w=w+10
+            h=h+10
+            draw.RoundedBox(4,(ScrW()-w)/2,(ScrH()-h)/2,w,h,Color(0,0,0,150))
+            draw.SimpleText(text,"DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+
+        end
     end
-end
+end)
 
 
 function MICRO_SHOW_HELP()
@@ -156,13 +186,13 @@ function MICRO_SHOW_HELP()
 end
 
 function MICRO_SHOW_TEAM()
-    local button_spots = {{10,40},{210,40},{10,140},{210,140},[0]={110,90}}
+    --local button_spots = {{10,40},{210,40},{10,140},{210,140},[0]={110,90}}
 
     local panel = vgui.Create("DFrame")
     panel:SetDraggable(false)
     panel:SetSizable(false)
     panel:SetTitle("Team Menu")
-    panel:SetSize(320,210)
+    panel:SetSize(640,480)
     panel:Center()
     panel:MakePopup()
 
@@ -171,7 +201,7 @@ function MICRO_SHOW_TEAM()
         button:SetFont("ChatFont")
         button:SetTextColor(Color(200,200,200))
         button:SetText(MICRO_TEAM_NAMES[i])
-        button:SetPos(button_spots[i][1],button_spots[i][2])
+        button:SetPos(30+i*120,30)
         button:SetSize(100,50)
 
         function button:Paint(w,h)
@@ -181,6 +211,23 @@ function MICRO_SHOW_TEAM()
         function button:DoClick()
             panel:Close()
             RunConsoleCommand("micro_jointeam",i)
+        end
+
+        local frame = panel:Add("DPanel")
+        frame:SetPos(20+i*120,100)
+        frame:SetSize(120,350)
+
+        function frame:Paint(w,h)
+            --draw.RoundedBox(8,0,0,w,h,Color(0,0,0))
+            surface.SetDrawColor(Color(0,0,0))
+            surface.DrawRect(0,0,w,h)
+            --surface.SetDrawColor(Color(255,255,255))
+            --surface.DrawOutlinedRect(0,0,w,h)
+            local n = i
+            if n==0 then n=5 end
+            for k,v in pairs(team.GetPlayers(n)) do
+                draw.SimpleText(v:Nick(),"DermaDefault",10,k*15,MICRO_TEAM_COLORS[i],TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+            end
         end
     end
 end

@@ -8,11 +8,13 @@ local sound_fire_hook_nope = Sound("buttons/button2.wav")
 local sound_fire_use = Sound("weapons/airboat/airboat_gun_lastshot1.wav")
 local sound_empty = Sound("weapons/ar2/ar2_empty.wav")
 local sound_select = Sound("weapons/shotgun/shotgun_cock.wav")
+local sound_reload = Sound("doors/door_latch1.wav")
 
 ENT.Ammo1Max = 200
 ENT.Ammo2Max = 4
 ENT.Ammo3Max = 4
 
+ENT.MaxMicroHealth = 100
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "GunName")
     
@@ -21,9 +23,15 @@ function ENT:SetupDataTables()
     self:NetworkVar("Int", 2, "Ammo2")
     self:NetworkVar("Int", 3, "Ammo3")
 
+    self:NetworkVar("Int", 4, "MicroHealth")
+
     self:NetworkVar("Bool", 0,"HookTooFar")
 	--self:NetworkVar("Float", 0, "Throttle")
 	--self:NetworkVar("Bool", 0, "IsHome")
+end
+
+function ENT:GetMicroHealthDisplayName()
+    return self:GetGunName().." Cannon"
 end
 
 function ENT:Initialize()
@@ -46,8 +54,10 @@ function ENT:Initialize()
         self:SetAmmo3(self.Ammo3Max)
 
         self.next_fire = 0
-        self.next_select = 0
+
+        self:SetMicroHealth(self.MaxMicroHealth)
     end
+    self:SetSkin(1)
 end
 
 function ENT:Use(activator, caller, useType, value)
@@ -59,23 +69,25 @@ function ENT:Use(activator, caller, useType, value)
     end
 end
 
-function ENT:sendControls(buttons,angs)
+function ENT:sendControls(buttons,buttons_pressed,angs)
+    local hurt = IsComponentHurt(self)
+    
+    if hurt then return end
+    
     local tr = util.TraceLine{start=self.gun:GetPos(),endpos=self.gun:GetPos()+angs:Forward()*10000,filter=self}
     
-    if bit.band(buttons,IN_FORWARD)!=0 and CurTime()>self.next_select then
+    if bit.band(buttons_pressed,IN_FORWARD)!=0 then
         if self:GetSelectedAmmo()==1 then
             self:SetSelectedAmmo(3)
         else
             self:SetSelectedAmmo(self:GetSelectedAmmo()-1)
         end
         sound.Play(sound_select,self.gun:GetPos(),75,150,1)
-        self.next_select = CurTime()+.3
     end
 
-    if bit.band(buttons,IN_BACK)!=0 and CurTime()>self.next_select then
+    if bit.band(buttons_pressed,IN_BACK)!=0 then
         self:SetSelectedAmmo(self:GetSelectedAmmo()%3+1)
         sound.Play(sound_select,self.gun:GetPos(),75,150,1)
-        self.next_select = CurTime()+.3
     end
     
     if tr.Entity:IsWorld() then
@@ -88,6 +100,20 @@ end
 
 function ENT:Think()
     if SERVER then
+        local hurt = IsComponentHurt(self)
+
+        if hurt then
+            self:SetSelectedAmmo(1)
+            self.fire = math.random()<.1
+            local base_yaw = self:GetAngles().y
+            local angs = self.gun:GetAngles()
+            angs=angs+Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*10
+            angs.p = math.Clamp(angs.p,-30,30)
+            angs.y = math.Clamp(angs.y,base_yaw+60,base_yaw+120)
+            --angs.r = math.Clamp(angs.p,-10,10)
+            self.gun:SetAngles(angs)
+        end
+
         if self.fire and CurTime()>self.next_fire then
             local origin = self.ship:GetInternalOrigin()
 
@@ -175,9 +201,26 @@ function ENT:Think()
     end
 end
 
+function ENT:PhysicsCollide(data, phys)
+    if IsComponentHurt(self) then return end
+    local class = data.HitEntity:GetClass()
+
+    if class:sub(1,17)=="micro_item_shell_" then
+        local type = tonumber(class:sub(18))
+
+        local ammo_needed = self["Ammo"..type.."Max"] - self["GetAmmo"..type](self)
+        local ammo_taken = data.HitEntity:TryTake(ammo_needed)
+
+        if ammo_taken>0 then
+            self:EmitSound(sound_reload)
+            self["SetAmmo"..type](self,self["GetAmmo"..type](self)+ammo_taken)
+        end
+    end
+end
+
 function ENT:stopControl()
     self.controller = nil
-    --self.fire=false
+    self.fire=false
 end
 
 function ENT:controlView(pos,angles,fov)
@@ -209,8 +252,8 @@ end
 
 function ENT:drawInfo()
     local ship = Entity(MICRO_SHIP_ID or -1)
+    local hurt = IsComponentHurt(self)
 
-    local ship = Entity(MICRO_SHIP_ID or -1)
     if IsValid(ship) then
         local color = ship:GetColor()
 
@@ -220,20 +263,25 @@ function ENT:drawInfo()
         surface.SetDrawColor(color)
         surface.DrawOutlinedRect(0,0,200,100)
 
-        draw.SimpleText(self:GetGunName().." CANNON","DermaDefault",100,12,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+        draw.SimpleText(string.upper(self:GetGunName()).." CANNON","DermaDefault",100,12,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+
+        local selected = self:GetSelectedAmmo()
+        if hurt then selected = math.random(3) end
+
+        draw.SimpleText("->","DermaDefault",5,12+20*selected,color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+
+        draw.SimpleText("STANDARD SHELLS: "..(hurt and math.random(self.Ammo1Max) or self:GetAmmo1()).." / "..self.Ammo1Max,"DermaDefault",20,32,Color(255,100,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
         
+        if self:GetHookTooFar() then
+            draw.SimpleText("HOOK OUT OF RANGE","DermaDefault",20,52,Color(255,0,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+        else
+            draw.SimpleText("HOOK SHELLS: "..(hurt and math.random(self.Ammo2Max) or self:GetAmmo2()).." / "..self.Ammo2Max,"DermaDefault",20,52,Color(100,100,100),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+        end
 
-            draw.SimpleText("->","DermaDefault",5,12+20*self:GetSelectedAmmo(),color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-
-            draw.SimpleText("STANDARD SHELLS: "..self:GetAmmo1().." / "..self.Ammo1Max,"DermaDefault",20,32,Color(255,100,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-            
-            if self:GetHookTooFar() then
-                draw.SimpleText("HOOK OUT OF RANGE","DermaDefault",20,52,Color(255,0,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-            else
-                draw.SimpleText("HOOK SHELLS: "..self:GetAmmo2().." / "..self.Ammo2Max,"DermaDefault",20,52,Color(100,100,100),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-            end
-
-            draw.SimpleText("USE SHELLS: "..self:GetAmmo3().." / "..self.Ammo3Max,"DermaDefault",20,72,Color(0,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
-
+        draw.SimpleText("USE SHELLS: "..(hurt and math.random(self.Ammo3Max) or self:GetAmmo3()).." / "..self.Ammo3Max,"DermaDefault",20,72,Color(0,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+        
+        if hurt then
+            DoHurtScreenEffect(color,200,100)
+        end
     end
 end

@@ -1,16 +1,14 @@
-GM.Name = ""
-GM.Author = ""
+GM.Name = "Dumb Roleplay Deathmatch"
+GM.Author = "Adam Coggeshall"
 GM.Email = ""
-GM.Website = ""
+GM.Website = "http://cogg.rocks"
 
 DeriveGamemode( "base" )
-
-team.SetUp(1,"Nerds",Color(0,255,255),false)
 
 MICRO_SCALE = 1/32
 
 MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
-
+ 
 MICRO_TEAM_COLORS = {
 	Color(255,0,0),
 	Color(0,255,0),
@@ -19,12 +17,22 @@ MICRO_TEAM_COLORS = {
 	[0]=Color(255,255,255)
 }
 
+for i=1,5 do
+	local n = i%5
+	team.SetUp(i,MICRO_TEAM_NAMES[n],MICRO_TEAM_COLORS[n],false)
+end
+--PrintTable(team.GetAllTeams())
+
 --util.PrecacheSound("ambient/fire/fire_small1.wav")
 
 -- no noclip
 function GM:PlayerNoClip()
 	return true
 	--return false
+end
+
+function GM:GravGunPunt()
+	return false
 end
 
 local ENTITY = FindMetaTable("Entity")
@@ -72,7 +80,7 @@ if SERVER then
 
 	function PLAYER:ProxyControls(ent)
 		self.controlled_ent = ent
-		self.control_ready_exit = false
+		self.control_last_buttons = IN_USE
 		net.Start("micro_enablecontrol")
 		net.WriteEntity(ent or NULL)
 		net.Send(self)
@@ -86,16 +94,16 @@ if SERVER then
 		local bad_controlled_ent = !IsValid(ply.controlled_ent) or !isfunction(ply.controlled_ent.sendControls)
 
 		-- really shitty solution, make user release USE before they can press it to exit.
-		if bit.band(buttons,IN_USE)==0 and not ply.control_ready_exit then
+		--[[if bit.band(buttons,IN_USE)==0 and not ply.control_ready_exit then
 			ply.control_ready_exit=true
-		end
+		end]]
+		local buttons_pressed = bit.band(bit.bxor(ply.control_last_buttons,buttons),buttons)
 
-		
 		if
 			!ply:Alive() or
 			bad_controlled_ent or
 			ply:GetPos():DistToSqr(ply.controlled_ent:GetPos())>150^2 or
-			(bit.band(buttons,IN_USE)!=0 and ply.control_ready_exit)
+			bit.band(buttons_pressed,IN_USE)!=0
 		then
 			net.Start("micro_enablecontrol")
 			net.WriteEntity(nil)
@@ -109,11 +117,13 @@ if SERVER then
 			if ply.controlled_ent.ControlEyeLock then
 				local x = net.ReadInt(16)
 				local y = net.ReadInt(16)
-				ply.controlled_ent:sendControls(buttons,x,y)
+				ply.controlled_ent:sendControls(buttons,buttons_pressed,x,y)
 			else
 				local angs = ply:EyeAngles()
-				ply.controlled_ent:sendControls(buttons,angs)
+				ply.controlled_ent:sendControls(buttons,buttons_pressed,angs)
 			end
+
+			ply.control_last_buttons = buttons
 		end
 	end)
 else
@@ -192,12 +202,13 @@ else
 				local start2 = LerpVector(math.max(v-100/d,0),start,stop)
 				local stop2 = LerpVector(v,start,stop)
 
-				--render.DrawBeam(start2,stop2,.1,0,1,Color(255,0,0)) 
 				local color
 				if type==1 then
 					color = Color(255,100,0)
 				elseif type==2 then
 					color = Color(0,255,255)
+				elseif type==3 then
+					color = Color(255,0,255)
 				end
 
 				render.StartBeam(2)
@@ -210,35 +221,7 @@ else
 				else
 					tracers[k]=v + 2000*FrameTime()/d
 				end
-				--print(k,v)
 			end
 		end
 	end
-
-
-	--[[
-		render.SetMaterial(matShot)
-		for k,v in pairs(self.tracers) do
-			
-			local start,stop = k[1],k[2]
-
-			local d = start:Distance(stop)
-
-			local start2 = LerpVector(math.max(v-100/d,0),start,stop)
-			local stop2 = LerpVector(v,start,stop)
-
-			--render.DrawBeam(start2,stop2,.1,0,1,Color(255,0,0)) 
-			render.StartBeam(2)
-			render.AddBeam(start2,4,0, Color(255,100,0))
-			render.AddBeam(stop2,4,1, Color(255,100,0))
-			render.EndBeam()
-
-			if v>1 then
-				self.tracers[k]=nil
-			else
-				self.tracers[k]=v + 2000*FrameTime()/d
-			end
-			--print(k,v)
-		end
-	]]
 end

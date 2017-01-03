@@ -11,6 +11,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Float", 0, "Throttle")
 	self:NetworkVar("Bool", 0, "IsHome")
 	self:NetworkVar("Bool", 1, "IsHooked")
+	self:NetworkVar("Entity", 0, "MainHull")
 end
 
 function ENT:Initialize()
@@ -72,7 +73,10 @@ function ENT:Draw()
 end
 
 function ENT:DrawTranslucent()
-	if self:GetThrottle()>0 then
+	local main_hull = self:GetMainHull()
+	local hurt = IsComponentHurt(main_hull)
+
+	if self:GetThrottle()>0 and !hurt then
 		local throttle = self:GetThrottle()
 
 		local scroll = -CurTime()*10*throttle
@@ -109,19 +113,23 @@ function ENT:Think()
 		self:SetThrottle(math.Clamp(self:GetThrottle() + self.ctrl_t*FrameTime()*10,-1,1))
 
 		--debugoverlay.Sphere(self:GetPos(),100,1,Color(0,0,255),true)
-		if self.ctrl_h!=0 or self.ctrl_v!=0 then
+		local main_hull = self:GetMainHull()
+		local hurt = IsComponentHurt(main_hull)
+
+		if (self.ctrl_h!=0 or self.ctrl_v!=0) and !hurt then
 			self.speaker_strafe:Play()
 		else
 			self.speaker_strafe:Stop()
 		end
 
-		if self:GetThrottle()!=0 then
+		if self:GetThrottle()!=0 and !hurt then
 			self.speaker_engine:Play(50+math.abs(self:GetThrottle())*80)
 		else
 			self.speaker_engine:Stop()
 		end
 
-		if !IsValid(self.trail) and self:GetThrottle()>0 then
+
+		if !IsValid(self.trail) and self:GetThrottle()>0 and !hurt then
 			self.trail = ents.Create("micro_trail")
 			self.trail:SetParent(self)
 			self.trail:SetLocalPos(Vector(-16,0,0))
@@ -129,7 +137,7 @@ function ENT:Think()
 			self.trail:Setup(self:GetColor())
 		end
 
-		if IsValid(self.trail) and self:GetThrottle()<=0 then
+		if IsValid(self.trail) and (self:GetThrottle()<=0 or hurt) then
 			self.trail:Stop()
 			self.trail = nil
 		end
@@ -140,6 +148,11 @@ end
 
 function ENT:PhysicsSimulate(phys, dt)
 	--print("n")
+	local main_hull = self:GetMainHull()
+	if IsComponentHurt(main_hull) then
+		local av = phys:GetAngleVelocity()
+		return -av,Vector(0,0,-50000)*MICRO_SCALE*dt,SIM_GLOBAL_ACCELERATION
+	end
 
 	local angs = phys:GetAngles()
 	
@@ -165,6 +178,7 @@ function ENT:PhysicsSimulate(phys, dt)
 	local throttle = self:GetThrottle()
 	if throttle > 0 then throttle=throttle*100 else throttle=throttle*25 end
 	local dv = Vector(throttle,ctrl_h*25,ctrl_v*25)
+
 	
 
 	return dav-av,dv-v,SIM_LOCAL_ACCELERATION
@@ -179,12 +193,18 @@ local sounds_impact = {
 local sound_crash = Sound("vehicles/v8/vehicle_impact_heavy1.wav")
 local sound_unhook = Sound("npc/attack_helicopter/aheli_mine_drop1.wav")
 
+local damage_whitelist = {
+	micro_ship=true,
+	micro_artifact=true
+}
+
 function ENT:OnTakeDamage(dmg)
 	local attacker = dmg:GetAttacker()
 
-	if IsValid(attacker) and attacker:GetClass()=="micro_ship" then
+	if IsValid(attacker) and damage_whitelist[attacker:GetClass()] then
 		local pos = self:WorldToLocal(dmg:GetDamagePosition())
 		sound.Play(table.Random(sounds_impact),self:GetInternalOrigin()+pos/MICRO_SCALE)--,75,100,1)
+		self.health_ent:ApplyDamage(dmg:GetDamage())
 	end
 end
 
@@ -192,6 +212,12 @@ function ENT:PhysicsCollide(data, phys)
 	if ( data.Speed > 30 ) then
 		local pos = self:WorldToLocal(data.HitPos)
 		sound.Play(sound_crash,self:GetInternalOrigin()+pos/MICRO_SCALE,100,100,1)
+
+		for i,ply in pairs(team.GetPlayers(self.team_id)) do
+			ply:ViewPunch( Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*(data.Speed/2) )
+		end
+
+		self.health_ent:ApplyDamage(data.Speed)
 	end
 end
 

@@ -4,12 +4,24 @@ ENT.Type = "anim"
 
 ENT.ControlEyeLock = true
 
+
+ENT.MaxMicroHealth = 100
+function ENT:SetupDataTables()
+    self:NetworkVar("Int", 0, "MicroHealth")
+end
+
+
 function ENT:Initialize()
     self:SetModel("models/smallbridge/other/sbconsolelow.mdl")
 	self:PhysicsInitStandard()
     if SERVER then
         self:SetUseType(SIMPLE_USE)
+        self:SetMicroHealth(self.MaxMicroHealth)
     end
+end
+
+function ENT:GetMicroHealthDisplayName()
+    return "Helm Console"
 end
 
 function ENT:Use(activator, caller, useType, value)
@@ -21,14 +33,20 @@ function ENT:Use(activator, caller, useType, value)
     end
 end
 
---function ENT:Think()
-    --if SERVER and IsValid(self.driver) then
-    --    print(self.driver:KeyDown(IN_JUMP))
-    --end
---end
+function ENT:Think()
+    local hurt = IsComponentHurt(self)
+    if SERVER and hurt then
+        self.ship.ctrl_v = math.random()*2-1
+        self.ship.ctrl_h = math.random()*2-1
+        self.ship.ctrl_y = math.random()*2-1
+        self.ship.ctrl_p = math.random()*2-1
+        self.ship.ctrl_t = math.random()*2-1
+    end
+end
 
-function ENT:sendControls(buttons,x,y)
-    if not IsValid(self.ship) then return end
+function ENT:sendControls(buttons,buttons_pressed,x,y)
+    local hurt = IsComponentHurt(self)
+    if not IsValid(self.ship) or hurt then return end
 
     if bit.band(buttons,IN_FORWARD)!=0 then
         self.ship.ctrl_v = 1
@@ -87,8 +105,16 @@ function ENT:Draw()
         local paur = ship:GetThrottle()
         local pitch = ship:GetAngles().p/90
         local yaw = ship:GetAngles().y
+        
+        local hurt = IsComponentHurt(self)
+
+        if hurt then
+            yaw=math.NormalizeAngle(CurTime()*180)
+            pitch=math.sin(CurTime())
+        end
 
         cam.Start3D2D(self:GetPos()+Vector(13,25,33),Angle(0,-90,30), .5 )
+            
             surface.SetDrawColor(Color( 0, 0, 0))
             surface.DrawRect( 0, 0, 100, 70 )
 
@@ -130,6 +156,11 @@ function ENT:Draw()
             if ship:GetIsHooked() then
                 draw.SimpleText("HOOKED","DermaDefault",75,55,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
             end
+
+            if hurt then
+                DoHurtScreenEffect(color,100,70)
+            end
+
         cam.End3D2D()
     end
 end

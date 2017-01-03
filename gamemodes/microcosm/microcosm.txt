@@ -1,7 +1,7 @@
 "microcosm"
 {
 	"base"		"base"
-	"title"		"Dumb Roleplay Deathmatch"
+	"title"		"Microcosm"
 	"menusystem"	"1"
 	"maps"			"^micro_"
 }

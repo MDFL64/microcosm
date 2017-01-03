@@ -1,7 +1,8 @@
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
  
-include( "shared.lua" )
+include("shared.lua")
+include("sv_artifact_control.lua")
 
 resource.AddWorkshop("822566180")
 resource.AddWorkshop("822569462")
@@ -20,7 +21,7 @@ sun:SetKeyValue("size", 0 )
 sun:SetKeyValue("overlaysize", math.sqrt(sun_size)*0 )
 ]]
 
-SHIP_ENTS = SHIP_ENTS or {}
+MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
 
 local downscale = false
 
@@ -29,6 +30,8 @@ function GM:PlayerSpawn( ply )
     if IsValid(ply.micro_ship) then
         ply:SetModel("models/player/barney.mdl")
         ply:Give("weapon_physcannon")
+        ply:Give("micro_fixer")
+        --ply:Give("weapon_frag")
 
         --ply:Give("gmod_camera")
         --ply:SetNoCollideWithTeammates(true)
@@ -78,12 +81,11 @@ function GM:PlayerSpawn( ply )
         ply:Give("weapon_357")
         ply:Give("weapon_smg1")
         ply:Give("weapon_shotgun")
-        --ply:SetNoCollideWithTeammates(false)
-        --ply:SetShip(nil)
+
+        --ply:Give("micro_art_placer")
     end
     ply:SetupHands()
-    ply:SetNoCollideWithTeammates(true)    
-    ply:SetTeam(1)
+    ply:SetNoCollideWithTeammates(true)
 end
 
 function GM:AllowPlayerPickup(ply, item)
@@ -146,6 +148,7 @@ function GM:InitPostEntity()
         ship_ent:SetColor(MICRO_TEAM_COLORS[i])
         ship_ent:Spawn()
         ship_ent.home = home
+        ship_ent.team_id = i
 
         local console = ents.Create("micro_console")
         console:SetPos(micro_ship_origin+Vector(480,0,10))
@@ -159,21 +162,41 @@ function GM:InitPostEntity()
         hull:SetPos(micro_ship_origin)
         hull:SetShip(ship_ent)
         hull:Spawn()
+        ship_ent:SetMainHull(hull)
 
         local cannon = ents.Create("micro_cannon")
         cannon:SetPos(micro_ship_origin+Vector(0,316,0))
-        cannon:SetSkin(1)
         cannon:Spawn()
-        cannon:SetGunName("PORT")
+        cannon:SetGunName("Port")
         cannon.ship = ship_ent
 
         local cannon = ents.Create("micro_cannon")
         cannon:SetPos(micro_ship_origin+Vector(0,-316,0))
         cannon:SetAngles(Angle(0,180,0))
-        cannon:SetSkin(1)
         cannon:Spawn()
-        cannon:SetGunName("STARBOARD")
+        cannon:SetGunName("Starboard")
         cannon.ship = ship_ent
+
+        local comms_panel = ents.Create("micro_comms")
+        comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
+        comms_panel:SetAngles(Angle(90,-160,0))
+        comms_panel:Spawn()
+        comms_panel.ship = ship_ent
+        ship_ent.comms_ent = comms_panel
+        ship_ent.comms_ent.team = i
+
+        local health_panel = ents.Create("micro_health")
+        health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
+        health_panel:SetAngles(Angle(90,-90,0))
+        health_panel:Spawn()
+        health_panel.ship = ship_ent
+        ship_ent.health_ent = health_panel
+
+        local shop = ents.Create("micro_shop")
+        shop:SetPos(micro_ship_origin+Vector(-422,0,8))
+        shop:Spawn()
+        shop.ship = ship_ent
+        ship_ent.shop_ent = shop
 
         local spk = ents.Create("micro_speaker")
         spk:SetPos(micro_ship_origin+Vector(0,0,-100))
@@ -190,7 +213,7 @@ function GM:InitPostEntity()
         --ship_ent.sound_strafe = CreateSound(hull,"ambient/gas/steam_loop1.wav")
         --ship_ent.sound_strafe:Play()
 
-        table.insert(SHIP_ENTS,ship_ent)
+        table.insert(MICRO_SHIP_ENTS,ship_ent)
 
         --PrintTable(hull:GetMaterials())
     end
@@ -218,7 +241,55 @@ end
 concommand.Add("micro_jointeam",function(ply,_,args)
     local team = tonumber(args[1])
     if isnumber(team) and team>=0 and team<=4 then
-        ply:SetShip(SHIP_ENTS[team])
-        ply:Spawn()
+        
+        
+        local realteam = team
+        if team==0 then
+            realteam = 5
+        end
+
+        if (ply:Team()==realteam) then return end
+        ply:SetTeam(realteam)
+
+        ply:SetShip(MICRO_SHIP_ENTS[team])
+        ply:KillSilent()
+        --hook.Call("PlayerSpawn",GAMEMODE,ply)
+        
+        -- DON'T BITCH AT ME ABOUT SPAGHETTI CODE AND ABOUT
+        -- HOW THIS IS TOO TIGHTLY COUPLED. I KNOW. I'LL FIX IT LATER.
+        if team!=0 then
+            MICRO_SHIP_ENTS[team].comms_ent:InitializeText(ply)
+        end
     end
 end)
+
+
+function GM:PlayerInitialSpawn(ply)
+    ply:SetTeam(5)
+end
+
+function GM:PostPlayerDeath(ply)
+    ply.respawn_time = CurTime()+0
+end
+
+function GM:PlayerDeathThink(ply)
+    --print("rerr?",ply.respawn_time,CurTime())
+    --return true
+    if ply.respawn_time==nil or CurTime()>ply.respawn_time then
+        ply:Spawn()
+    end
+end
+
+function GM:PlayerCanHearPlayersVoice(listener, talker)
+    if listener:Alive() and talker:Alive() and listener:Team() == talker:Team() then
+        return true, true
+    end
+    return false,false
+end
+
+function GM:PlayerCanSeePlayersChat(text, teamOnly, listener, talker)
+    if listener:Alive() and talker:Alive() and listener:Team() == talker:Team() then
+        return true
+    end
+    return false
+end

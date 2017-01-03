@@ -118,13 +118,6 @@ local function minify(ent)
 
 end]]
 
-local spawns = {
-    {Vector(-2805.373047,-2629.304932,176.031250),Angle(0,90,0)}, -- top of spawn
-    {Vector(-1225.940552,1025.711182,232.031250),Angle(0,-90,0)}, -- above subway
-    {Vector(1089.395142,1840.912476,-203.968750),Angle(0,-90,0)}, -- warehouse
-    {Vector(1888.408936,-1887.610718,-495.968750),Angle(0,180,0)} -- back of train tunnel
-}
-
 function GM:InitPostEntity()
     for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 
@@ -133,8 +126,8 @@ function GM:InitPostEntity()
         -- Spawn
         -- models/Mechanics/gears2/vert_24t1.mdl
         local home = ents.Create("prop_physics")
-        home:SetPos(spawns[i][1])
-        home:SetAngles(spawns[i][2])
+        home:SetPos(MICRO_HOME_SPOTS[i][1])
+        home:SetAngles(MICRO_HOME_SPOTS[i][2])
         home:SetColor(MICRO_TEAM_COLORS[i])
         home:SetModel("models/Mechanics/gears2/vert_24t1.mdl")
         home:Spawn()
@@ -155,7 +148,6 @@ function GM:InitPostEntity()
         console:SetAngles(Angle(0,180,0))
         console:Spawn()
         console.ship = ship_ent
-        console:GetPhysicsObject():EnableMotion(false)
 
         -- Hull
         local hull = ents.Create("micro_hull")
@@ -169,6 +161,7 @@ function GM:InitPostEntity()
         cannon:Spawn()
         cannon:SetGunName("Port")
         cannon.ship = ship_ent
+        ship_ent.cannon_1 = cannon
 
         local cannon = ents.Create("micro_cannon")
         cannon:SetPos(micro_ship_origin+Vector(0,-316,0))
@@ -176,6 +169,7 @@ function GM:InitPostEntity()
         cannon:Spawn()
         cannon:SetGunName("Starboard")
         cannon.ship = ship_ent
+        ship_ent.cannon_2 = cannon
 
         local comms_panel = ents.Create("micro_comms")
         comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
@@ -197,6 +191,12 @@ function GM:InitPostEntity()
         shop:Spawn()
         shop.ship = ship_ent
         ship_ent.shop_ent = shop
+
+        local nav = ents.Create("micro_nav")
+        nav:SetPos(micro_ship_origin+Vector(110,-50,110))
+        nav:SetAngles(Angle(-70,0,0))
+        nav:Spawn()
+        nav.ship = ship_ent
 
         local spk = ents.Create("micro_speaker")
         spk:SetPos(micro_ship_origin+Vector(0,0,-100))
@@ -269,7 +269,7 @@ function GM:PlayerInitialSpawn(ply)
 end
 
 function GM:PostPlayerDeath(ply)
-    ply.respawn_time = CurTime()+0
+    ply.respawn_time = CurTime()+10
 end
 
 function GM:PlayerDeathThink(ply)

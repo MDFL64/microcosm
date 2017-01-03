@@ -134,17 +134,10 @@ function IsComponentHurt(comp)
 end
 
 if SERVER then
-    local debug_class --= "micro_shop"
+    local debug_class
 
     function ENT:ApplyDamage(dmg,iter)
         iter = iter or 1
-
-
-        --1 -> self.hull
-        --2 -> table.Random(self.tracked_ents)
-        --3 -> table.Random(team.GetPlayers(self.ship.team_id))
-        --PrintTable(self.tracked_ents)
-        --print(iter,dmg,math.random(3))
 
         local damaged_ent
         

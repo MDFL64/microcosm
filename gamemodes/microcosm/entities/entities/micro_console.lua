@@ -15,6 +15,8 @@ function ENT:Initialize()
     self:SetModel("models/smallbridge/other/sbconsolelow.mdl")
 	self:PhysicsInitStandard()
     if SERVER then
+        self:GetPhysicsObject():EnableMotion(false)
+        
         self:SetUseType(SIMPLE_USE)
         self:SetMicroHealth(self.MaxMicroHealth)
     end
@@ -138,6 +140,8 @@ function ENT:Draw()
                     draw.SimpleText(letter,"DermaDefault",75+ang/5,35,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
                 end
             end
+
+            yaw = math.NormalizeAngle(yaw+180)
 
             drawDir(yaw,"N")
             drawDir(yaw+90,"E")

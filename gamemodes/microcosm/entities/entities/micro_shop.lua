@@ -130,6 +130,22 @@ local items = {
         end
     },
     {
+        name="Reload Guns",
+        desc="Fully loads both cannons.",
+        cost=50,
+        pv="models/items/ammocrate_ar2.mdl",
+        func = function(ship)
+            local function full_reload(cannon)
+                cannon:SetAmmo1(cannon.Ammo1Max)
+                cannon:SetAmmo2(cannon.Ammo2Max)
+                cannon:SetAmmo3(cannon.Ammo3Max)
+            end
+
+            full_reload(ship.cannon_1)
+            full_reload(ship.cannon_2)
+        end
+    },
+    {
         name="Fixer Fuel",
         desc="Reloads 100 units of fixer fuel.",
         cost=5,
@@ -291,31 +307,5 @@ else
                 end
             end
         end
-
-        --[[local x_offset = 5
-        for i=1,5 do
-            if i==LocalPlayer():Team() then continue end
-            local button = panel:Add("DButton")
-            if i==5 then
-                button:SetText("Broadcast [ENTER]")
-                button:SetSize(150,40)
-            else
-                button:SetText("PM "..MICRO_TEAM_NAMES[i])
-                button:SetSize(100,40)
-            end
-            button:SetPos(x_offset,80) 
-            x_offset = x_offset+110
-            button:SetFont("ChatFont")
-            button:SetTextColor(Color(200,200,200))
-
-            function button:DoClick()
-                panel:Close()
-                RunConsoleCommand("micro_comms_send",i%5,text:GetValue())
-            end
-
-            function button:Paint(w,h)
-                draw.RoundedBox(8,0,0,w,h,MICRO_TEAM_COLORS[i%5])
-            end
-        end]]
     end
 end

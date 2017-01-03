@@ -68,8 +68,8 @@ end
 
 function GM:PreRender()
     local ship_ent = Entity(MICRO_SHIP_ID or -1)
-
     if IsValid(ship_ent) then
+
         local origin = ship_ent:GetInternalOrigin()
 
         local real_pos = ship_ent:GetPos()
@@ -92,6 +92,8 @@ function GM:PreRender()
             h=ScrH(),
             --drawviewmodel=true,
             --fov=150,
+            x=0,
+            y=0,
             origin=cam_pos,
             angles=cam_ang,
             znear=0.1

@@ -50,7 +50,7 @@ if SERVER then
                 if dist<25 then
                     --local xx = constraint.FindConstraintEntity(self,"Rope")
                     --print(xx)
-                    if IsValid(constraint.FindConstraintEntity(self,"Rope")) or !ent.shop_ent:AddCash(200) then
+                    if IsValid(constraint.FindConstraintEntity(self,"Rope")) or !ent.shop_ent:AddCash(100) then
                         hit = true
                         self:SetColor(ent.home:GetColor())
                     else

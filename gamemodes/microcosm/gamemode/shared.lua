@@ -14,7 +14,7 @@ MICRO_TEAM_COLORS = {
 	Color(0,255,0),
 	Color(0,0,255),
 	Color(255,255,0),
-	[0]=Color(255,255,255)
+	[0]=Color(150,150,150)
 }
 
 MICRO_HOME_SPOTS = {
@@ -34,8 +34,8 @@ end
 
 -- no noclip
 function GM:PlayerNoClip()
-	return true
-	--return false
+	--return true
+	return false
 end
 
 function GM:GravGunPunt()

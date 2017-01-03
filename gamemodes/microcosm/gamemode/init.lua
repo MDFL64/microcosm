@@ -28,6 +28,11 @@ local downscale = false
 function GM:PlayerSpawn( ply )
     ply:StripWeapons()
     if IsValid(ply.micro_ship) then
+        if !ply.shown_help_notify then
+            ply.shown_help_notify=true
+            ply:SendLua("MICRO_NOTIFY_REALHELP()")
+        end
+
         ply:SetModel("models/player/barney.mdl")
         ply:Give("weapon_physcannon")
         ply:Give("micro_fixer")
@@ -292,4 +297,14 @@ function GM:PlayerCanSeePlayersChat(text, teamOnly, listener, talker)
         return true
     end
     return false
+end
+
+function GM:PlayerSay( talker, text, teamOnly )
+    if text=="/team" or text=="!team" then
+        talker:SendLua("MICRO_SHOW_TEAM()")
+        return ""
+    elseif text=="/help" or text=="!help" then
+        talker:SendLua("MICRO_SHOW_HELP()")
+        return ""
+    end
 end

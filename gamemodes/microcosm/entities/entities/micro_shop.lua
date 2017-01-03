@@ -43,7 +43,7 @@ if SERVER then
     function ENT:Think()
         if CurTime()>self.next_paytime and !IsComponentHurt(self) then
             self:SetCash(self:GetCash()+1)
-            self.next_paytime = CurTime()+3
+            self.next_paytime = CurTime()+6
         end
     end
 

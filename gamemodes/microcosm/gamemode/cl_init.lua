@@ -146,6 +146,31 @@ net.Receive("airsup_minify", function()
     end
 end)]]
 
+timer.Simple(10,function()
+    chat.AddText(Color(255,0,255),"Welcome 2 Dumb Roleplay Deathmatch!")
+    chat.AddText(Color(255,0,255),"Take a look at our rules and AWSOME donater perks by hitting F1 or typing /help")
+    chat.AddText(Color(255,0,255),"Join a team by hitting F2 or typing /team")
+end)
+
+local notes = {
+    nil,
+    "HINT: You might want to join a team!",
+    "HINT: You should really join a team!",
+    "HINT: YOU NEED TO JOIN A TEAM TO PLAY THE ACTUAL GAMEMODE!",
+    "HINT: JUST JOIN A TEAM ALREADY!"
+}
+
+local notify_n = 1
+timer.Create("micro_drd_annoy",20,0,function()
+    if LocalPlayer():Team()==5 then
+        local note = notes[notify_n]
+        if notify_n<#notes then notify_n=notify_n+1 end
+        notification.AddLegacy("HINT: Join a team using the F2 menu or typing /team in chat!",NOTIFY_HINT,20)
+        if note!= nil then
+            notification.AddLegacy(note,NOTIFY_ERROR,20)
+        end
+    end
+end)
 
 function GM:CalcView(ply, pos, angles, fov)
     if IsValid(MICRO_CONTROLLING) then
@@ -182,9 +207,31 @@ hook.Add("HUDPaint","micro_hud",function()
     end
 end)
 
+local function help_panel(url)
+    local panel = vgui.Create("DFrame")
+    panel:SetDraggable(false)
+    panel:SetSizable(false)
+    panel:SetTitle("Help")
+    panel:SetSize(ScrW()-100,ScrH()-100)
+    panel:Center()
+    panel:SetDeleteOnClose(false)
+
+    local html = panel:Add("DHTML")
+    html:Dock( FILL )
+    html:OpenURL(url)
+    return panel
+end
 
 function MICRO_SHOW_HELP()
-    print("help")
+    if LocalPlayer():Team()==5 then
+        MICRO_PANEL_HELP_FAKE = MICRO_PANEL_HELP_FAKE or help_panel("http://micro.cogg.rocks/ingame/fake.html")
+        MICRO_PANEL_HELP_FAKE:Show()
+        MICRO_PANEL_HELP_FAKE:MakePopup()
+    else
+        MICRO_PANEL_HELP = MICRO_PANEL_HELP or help_panel("http://micro.cogg.rocks/ingame/help.html")
+        MICRO_PANEL_HELP:Show()
+        MICRO_PANEL_HELP:MakePopup()
+    end
 end
 
 function MICRO_SHOW_TEAM()
@@ -232,4 +279,14 @@ function MICRO_SHOW_TEAM()
             end
         end
     end
+end
+
+function GM:OnPlayerChat(player, text, bTeamOnly, bPlayerIsDead)
+    return bPlayerIsDead
+end
+ 
+function MICRO_NOTIFY_REALHELP()
+    notification.AddLegacy("This is kind-of complicated, so maybe you should do that...",NOTIFY_HINT,20)
+    notification.AddLegacy("You can view the REAL help now, using F1 or /help",NOTIFY_HINT,20)
+    notification.AddLegacy("Just kidding about the DarkRP thing.",NOTIFY_HINT,20)
 end

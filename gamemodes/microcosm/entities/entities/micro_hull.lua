@@ -17,8 +17,10 @@ end
 ENT.MaxMicroHealth = 2000
 
 function ENT:Initialize()
-    self:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
-
+    --self:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
+	
+	--do micro_hull:SetModel("") in init.lua
+	
 	self:PhysicsInitStandard()
 
     if SERVER then

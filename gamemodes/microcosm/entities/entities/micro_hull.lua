@@ -14,7 +14,7 @@ function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
 end
 
-ENT.MaxMicroHealth = 1000
+ENT.MaxMicroHealth = 2000
 
 function ENT:Initialize()
     self:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
@@ -46,7 +46,6 @@ if CLIENT then
             --cm:SetLocalPos(Vector(0,0,0))
             cm:SetNoDraw(true)
             cm:EnableMatrix("RenderMultiply",matrix)
-            print(cm:SetSubMaterial(5,"tools/toolsblack"))
 
             ship.hulls[self] = cm
             self.paired = true

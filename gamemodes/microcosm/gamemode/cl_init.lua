@@ -1,5 +1,12 @@
 include( 'shared.lua' )
 
+surface.CreateFont( "micro_shadow", {
+	font = "Verdana",
+    size = 16,
+    antialias = false,
+    shadow=true
+})
+
 --[[local lau = {
     set = function(keys)
         local set = {}
@@ -247,8 +254,8 @@ function MICRO_SHOW_TEAM()
 
     for i=0,4 do
         local button = panel:Add("DButton")
-        button:SetFont("ChatFont")
-        button:SetTextColor(Color(200,200,200))
+        button:SetFont("micro_shadow")
+        button:SetTextColor(Color(255,255,255))
         button:SetText(MICRO_TEAM_NAMES[i])
         button:SetPos(30+i*120,30)
         button:SetSize(100,50)

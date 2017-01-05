@@ -77,16 +77,12 @@ function ENT:Draw()
 
                 local fraction = current / ent.MaxMicroHealth
 
-                surface.SetDrawColor(Color( (1-fraction)*255, (fraction)*255, 0))
+                surface.SetDrawColor(Color( (1-fraction)*255, (fraction)*150, 0))
                 surface.DrawRect( 2, 30+i*20, 356*fraction, 16 )
 
-                local text_color = Color(0,0,0)
+                local text_color = Color(255,255,255)
 
-                if fraction<.93 then
-                    text_color=Color(255,255,255)
-                end
-
-                draw.SimpleText(name,"ChatFont",40,30+i*20,text_color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+                draw.SimpleText(name,"micro_shadow",40,30+i*20,text_color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 
                 local print_fraction = current.." / "..ent.MaxMicroHealth
 
@@ -103,7 +99,7 @@ function ENT:Draw()
                     end
                 end
 
-                draw.SimpleText(print_fraction,"ChatFont",240,30+i*20,text_color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+                draw.SimpleText(print_fraction,"micro_shadow",240,30+i*20,text_color,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 
 
                 -- ent:GetMicroHealth().." / "..ent.MaxMicroHealth

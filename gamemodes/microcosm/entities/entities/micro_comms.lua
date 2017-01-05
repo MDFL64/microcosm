@@ -321,8 +321,8 @@ else
             end
             button:SetPos(x_offset,80) 
             x_offset = x_offset+110
-            button:SetFont("ChatFont")
-            button:SetTextColor(Color(200,200,200))
+            button:SetFont("micro_shadow")
+            button:SetTextColor(Color(255,255,255))
 
             function button:DoClick()
                 panel:Close()

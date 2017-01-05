@@ -307,4 +307,5 @@ function GM:PlayerSay( talker, text, teamOnly )
         talker:SendLua("MICRO_SHOW_HELP()")
         return ""
     end
+    return text
 end

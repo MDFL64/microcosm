@@ -1,4 +1,4 @@
-GM.Name = "Dumb Roleplay Deathmatch"
+GM.Name = "Microcosm"
 GM.Author = "Adam Coggeshall"
 GM.Email = ""
 GM.Website = "http://cogg.rocks"

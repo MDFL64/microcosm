@@ -168,14 +168,14 @@ local items = {
     },
     {
         name="Hook Cannon Shells",
-        desc="Reloads 4 hook cannon shells.",
+        desc="Reloads 2 hook cannon shells.",
         cost=5,
         pv="models/props_junk/meathook001a.mdl",
         ent="micro_item_shell_2"
     },
     {
         name="Use Cannon Shells",
-        desc="Reloads 4 use cannon shells.",
+        desc="Reloads 8 use cannon shells.",
         cost=5,
         pv="models/dav0r/buttons/button.mdl",
         ent="micro_item_shell_3"

@@ -224,6 +224,14 @@ function GM:InitPostEntity()
     end
 
     for _,v in pairs(ents.FindByClass("prop_door_rotating")) do
+        --local kvs = v:GetKeyValues()
+        --print(kvs["returndelay"])
+        --PrintTable(kvs)
+        --[[
+            ltime
+            PressureDelay
+        ]]
+        v:SetKeyValue("returndelay",60*5)
         v:Fire("unlock")
     end
 end

@@ -11,8 +11,8 @@ local sound_select = Sound("weapons/shotgun/shotgun_cock.wav")
 local sound_reload = Sound("doors/door_latch1.wav")
 
 ENT.Ammo1Max = 200
-ENT.Ammo2Max = 4
-ENT.Ammo3Max = 4
+ENT.Ammo2Max = 2
+ENT.Ammo3Max = 8
 
 ENT.MaxMicroHealth = 100
 function ENT:SetupDataTables()

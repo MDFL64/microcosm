@@ -1,4 +1,4 @@
-GM.Name = "Dumb Roleplay Deathmatch"
+GM.Name = "Microcosm"
 GM.Author = "Adam Coggeshall"
 GM.Email = ""
 GM.Website = "http://cogg.rocks"
@@ -18,10 +18,10 @@ MICRO_TEAM_COLORS = {
 }
 
 MICRO_HOME_SPOTS = {
-    {Vector(-2805.373047,-2629.304932,176.031250),Angle(0,90,0)}, -- top of spawn
-    {Vector(-1225.940552,1025.711182,232.031250),Angle(0,-90,0)}, -- above subway
-    {Vector(1089.395142,1840.912476,-203.968750),Angle(0,-90,0)}, -- warehouse
-    {Vector(1888.408936,-1887.610718,-495.968750),Angle(0,180,0)} -- back of train tunnel
+	{Vector(-2805.373047,-2629.304932,176.031250),Angle(0,90,0)}, -- top of spawn
+	{Vector(-1225.940552,1025.711182,232.031250),Angle(0,-90,0)}, -- above subway
+	{Vector(1089.395142,1840.912476,-203.968750),Angle(0,-90,0)}, -- warehouse
+	{Vector(1888.408936,-1887.610718,-495.968750),Angle(0,180,0)} -- back of train tunnel
 }
 
 for i=1,5 do

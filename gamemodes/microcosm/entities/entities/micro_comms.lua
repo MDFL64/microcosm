@@ -120,8 +120,8 @@ if SERVER then
             end
 
             ent:AddText(
-                team_color,string.upper(team_name)..": ",
-                Color(255,255,255),msg
+                team_color,string.upper(team_name)..":",
+                Color(255,255,255)," "..msg
             )
         end
     end

@@ -157,7 +157,7 @@ function GM:InitPostEntity()
 
 		local console = ents.Create("micro_console")
 		if ship_design=="ufo" then
-			console:SetPos(micro_ship_origin+Vector(190,0,-57))
+			console:SetPos(micro_ship_origin+Vector(170,0,-57))
 		else
 			console:SetPos(micro_ship_origin+Vector(480,0,10))
 		end

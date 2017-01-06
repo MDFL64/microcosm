@@ -81,19 +81,13 @@ function ENT:DrawTranslucent()
 
 		local scroll = -CurTime()*10*throttle
 
-		local offsets = {
-			Vector(-15,0,0),
-			Vector(-14,7,0),
-			Vector(-14,-7,0),
-			Vector(-13,3,4),
-			Vector(-13,-3,4)
-		}
+		local offsets = main_hull:GetThrustEffectOffsets()
 		local offset_mid = self:GetAngles():Forward()*-10*throttle
 		local offset_end =  self:GetAngles():Forward()*-15*throttle
 
 		render.SetMaterial(matFire)
 
-		for i=1,5 do
+		for i=1,#offsets do
 			local thrust_base = self:LocalToWorld(offsets[i])
 			render.StartBeam(3)
 			render.AddBeam(thrust_base,3,scroll, Color(255,255,255))
@@ -130,9 +124,11 @@ function ENT:Think()
 
 
 		if !IsValid(self.trail) and self:GetThrottle()>0 and !hurt then
+			local offset = main_hull:GetThrustEffectOffsets()[1]
+
 			self.trail = ents.Create("micro_trail")
 			self.trail:SetParent(self)
-			self.trail:SetLocalPos(Vector(-16,0,0))
+			self.trail:SetLocalPos(offset)
 			self.trail:Spawn()
 			self.trail:Setup(self:GetColor())
 		end

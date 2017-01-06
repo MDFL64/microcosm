@@ -123,6 +123,8 @@ local function minify(ent)
 
 end]]
 
+local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",0,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
+
 function GM:InitPostEntity()
 	for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 
@@ -147,10 +149,15 @@ function GM:InitPostEntity()
 		ship_ent:Spawn()
 		ship_ent.home = home
 		ship_ent.team_id = i
+		
+		local ship_design = cfg_shipdesign:GetString()
+		if ship_design=="mix" then
+			ship_design = i==2 and "ufo" or "std"
+		end
 
 		local console = ents.Create("micro_console")
-		if i==2 then
-			console:SetPos(micro_ship_origin+Vector(305,0,-57))
+		if ship_design=="ufo" then
+			console:SetPos(micro_ship_origin+Vector(190,0,-57))
 		else
 			console:SetPos(micro_ship_origin+Vector(480,0,10))
 		end
@@ -161,20 +168,21 @@ function GM:InitPostEntity()
 		-- Hull
 		local hull = ents.Create("micro_hull")
 		--SkyLight added some stuff around here, might want to review it and tell him how to make it better
-		if i==2 then --make the UFO model be for the green team! Since there's a hole in the center of the model, you have to spawn a little further forward from it's center to not fall through.
+		if ship_design=="ufo" then --make the UFO model be for the green team! Since there's a hole in the center of the model, you have to spawn a little further forward from it's center to not fall through.
 			hull:SetModel("models/smallbridge/station parts/sbbridgevisort.mdl")
-			hull:SetPos(micro_ship_origin+Vector(128,0,0))
 		else --otherwise, just do what you would have normally! :D
 			hull:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
-			hull:SetPos(micro_ship_origin)
 		end
+		-- Always spawn the hull at the same spot.
+		-- Spawn the player differently if we need to.
+		hull:SetPos(micro_ship_origin)
 		hull:SetShip(ship_ent)
 		hull:Spawn()
 		ship_ent:SetMainHull(hull)
 
-		if i==2 then --again, select for green team's UFO!  Little green men!
+		if ship_design=="ufo" then --again, select for green team's UFO!  Little green men!
 			local cannon = ents.Create("micro_cannon")
-			cannon:SetPos(micro_ship_origin+Vector(128,0,-80)) --bottom and centered
+			cannon:SetPos(micro_ship_origin+Vector(0,0,-80)) --bottom and centered
 			cannon:Spawn()
 			cannon:SetGunName("Abductor")
 			cannon:SetMicroHealth(100) --200 goes off the display :V, 100 is the default
@@ -199,8 +207,8 @@ function GM:InitPostEntity()
 		end
 			
 		local comms_panel = ents.Create("micro_comms")
-		if i==2 then
-			comms_panel:SetPos(micro_ship_origin+Vector(128,180,0))
+		if ship_design=="ufo" then
+			comms_panel:SetPos(micro_ship_origin+Vector(0,180,0))
 			comms_panel:SetAngles(Angle(90,-90,0))
 		else
 			comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
@@ -212,8 +220,8 @@ function GM:InitPostEntity()
 		ship_ent.comms_ent.team = i
 
 		local health_panel = ents.Create("micro_health")
-		if i==2 then
-			health_panel:SetPos(micro_ship_origin+Vector(128,-180,0))
+		if ship_design=="ufo" then
+			health_panel:SetPos(micro_ship_origin+Vector(0,-180,0))
 			health_panel:SetAngles(Angle(90,90,0))
 		else
 			health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
@@ -224,8 +232,8 @@ function GM:InitPostEntity()
 		ship_ent.health_ent = health_panel
 
 		local shop = ents.Create("micro_shop")
-		if i==2 then
-			shop:SetPos(micro_ship_origin+Vector(0,0,0))
+		if ship_design=="ufo" then
+			shop:SetPos(micro_ship_origin+Vector(-128,0,0))
 		else
 			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
 		end
@@ -234,8 +242,8 @@ function GM:InitPostEntity()
 		ship_ent.shop_ent = shop
 
 		local nav = ents.Create("micro_nav")
-		if i==2 then
-			nav:SetPos(micro_ship_origin+Vector(-70,0,-35))
+		if ship_design=="ufo" then
+			nav:SetPos(micro_ship_origin+Vector(-198,0,-35))
 			nav:SetAngles(Angle(-70,180,0))
 		else
 			nav:SetPos(micro_ship_origin+Vector(110,-50,110))

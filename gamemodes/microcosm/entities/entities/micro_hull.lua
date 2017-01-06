@@ -56,3 +56,17 @@ if CLIENT then
 		--print("balls")
 	end
 end
+
+function ENT:GetThrustEffectOffsets()
+	if self:GetModel()=="models/smallbridge/station parts/sbbridgevisort.mdl" then
+		return {Vector(-6,0,-2)}
+	else
+		return {
+			Vector(-15,0,0),
+			Vector(-14,7,0),
+			Vector(-14,-7,0),
+			Vector(-13,3,4),
+			Vector(-13,-3,4)
+		}
+	end
+end

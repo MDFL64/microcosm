@@ -136,6 +136,7 @@ local items = {
 		pv="models/items/ammocrate_ar2.mdl",
 		func = function(ship)
 			local function full_reload(cannon)
+				if !IsValid(cannon) then return end
 				cannon:SetAmmo1(cannon.Ammo1Max)
 				cannon:SetAmmo2(cannon.Ammo2Max)
 				cannon:SetAmmo3(cannon.Ammo3Max)

@@ -21,7 +21,7 @@ function ENT:Initialize()
 	--self:PhysicsInitStandard()]]
 
 	if SERVER then
-        self:PhysicsInitSphere(16,"metal")
+		self:PhysicsInitSphere(16,"metal")
 
 		self:StartMotionController()
 		local phys = self:GetPhysicsObject()

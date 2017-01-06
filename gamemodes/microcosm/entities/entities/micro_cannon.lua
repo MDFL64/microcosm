@@ -45,7 +45,7 @@ function ENT:Initialize()
 
         self.gun = ents.Create("prop_dynamic")
         self.gun:SetModel("models/slyfo/rover_snipercannon.mdl")
-        self.gun:SetPos(self:LocalToWorld(Vector(0,50,50)))
+        self.gun:SetPos(self:LocalToWorld(Vector(50,50,0))) -- originally 0,50,50
         self.gun:Spawn()
 
         self:SetSelectedAmmo(1)

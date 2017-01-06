@@ -149,57 +149,98 @@ function GM:InitPostEntity()
         ship_ent.team_id = i
 
         local console = ents.Create("micro_console")
-        console:SetPos(micro_ship_origin+Vector(480,0,10))
+		if i==2 then
+			console:SetPos(micro_ship_origin+Vector(305,0,-57))
+		else
+			console:SetPos(micro_ship_origin+Vector(480,0,10))
+		end
         console:SetAngles(Angle(0,180,0))
         console:Spawn()
         console.ship = ship_ent
 
         -- Hull
         local hull = ents.Create("micro_hull")
-        hull:SetPos(micro_ship_origin)
+		--SkyLight added some stuff around here, might want to review it and tell him how to make it better
+		if i==2 then --make the UFO model be for the green team! Since there's a hole in the center of the model, you have to spawn a little further forward from it's center to not fall through.
+			hull:SetModel("models/smallbridge/station parts/sbbridgevisort.mdl")
+			hull:SetPos(micro_ship_origin+Vector(128,0,0))
+		else --otherwise, just do what you would have normally! :D
+			hull:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
+			hull:SetPos(micro_ship_origin)
+		end
         hull:SetShip(ship_ent)
         hull:Spawn()
         ship_ent:SetMainHull(hull)
 
-        local cannon = ents.Create("micro_cannon")
-        cannon:SetPos(micro_ship_origin+Vector(0,316,0))
-        cannon:Spawn()
-        cannon:SetGunName("Port")
-        cannon.ship = ship_ent
-        ship_ent.cannon_1 = cannon
+		if i==2 then --again, select for green team's UFO!  Little green men!
+			local cannon = ents.Create("micro_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(128,0,-80)) --bottom and centered
+			cannon:Spawn()
+			cannon:SetGunName("Abductor")
+			cannon:SetMicroHealth(100) --200 goes off the display :V, 100 is the default
+			cannon:SetAngles(Angle(0,-90,-90))
+			cannon.ship = ship_ent
+			ship_ent.cannon_1 = cannon
+		else
+			local cannon = ents.Create("micro_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(0,316,0))
+			cannon:Spawn()
+			cannon:SetGunName("Port")
+			cannon.ship = ship_ent
+			ship_ent.cannon_1 = cannon
 
-        local cannon = ents.Create("micro_cannon")
-        cannon:SetPos(micro_ship_origin+Vector(0,-316,0))
-        cannon:SetAngles(Angle(0,180,0))
-        cannon:Spawn()
-        cannon:SetGunName("Starboard")
-        cannon.ship = ship_ent
-        ship_ent.cannon_2 = cannon
-
+			local cannon = ents.Create("micro_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(0,-316,0))
+			cannon:SetAngles(Angle(0,180,0))
+			cannon:Spawn()
+			cannon:SetGunName("Starboard")
+			cannon.ship = ship_ent
+			ship_ent.cannon_2 = cannon
+		end
+			
         local comms_panel = ents.Create("micro_comms")
-        comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
-        comms_panel:SetAngles(Angle(90,-160,0))
+        if i==2 then
+			comms_panel:SetPos(micro_ship_origin+Vector(128,180,0))
+			comms_panel:SetAngles(Angle(90,-90,0))
+		else
+			comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
+			comms_panel:SetAngles(Angle(90,-160,0))
+		end
         comms_panel:Spawn()
         comms_panel.ship = ship_ent
         ship_ent.comms_ent = comms_panel
         ship_ent.comms_ent.team = i
 
         local health_panel = ents.Create("micro_health")
-        health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
-        health_panel:SetAngles(Angle(90,-90,0))
+        if i==2 then
+			health_panel:SetPos(micro_ship_origin+Vector(128,-180,0))
+		    health_panel:SetAngles(Angle(90,90,0))
+		else
+			health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
+		    health_panel:SetAngles(Angle(90,-90,0))
+		end
         health_panel:Spawn()
         health_panel.ship = ship_ent
         ship_ent.health_ent = health_panel
 
         local shop = ents.Create("micro_shop")
-        shop:SetPos(micro_ship_origin+Vector(-422,0,8))
+        if i==2 then
+			shop:SetPos(micro_ship_origin+Vector(0,0,0))
+		else
+			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
+		end
         shop:Spawn()
         shop.ship = ship_ent
         ship_ent.shop_ent = shop
 
         local nav = ents.Create("micro_nav")
-        nav:SetPos(micro_ship_origin+Vector(110,-50,110))
-        nav:SetAngles(Angle(-70,0,0))
+		if i==2 then
+			nav:SetPos(micro_ship_origin+Vector(-70,0,-35))
+			nav:SetAngles(Angle(-70,180,0))
+		else
+			nav:SetPos(micro_ship_origin+Vector(110,-50,110))
+			nav:SetAngles(Angle(-70,0,0))
+		end
         nav:Spawn()
         nav.ship = ship_ent
 

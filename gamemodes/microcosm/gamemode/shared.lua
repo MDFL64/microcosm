@@ -32,9 +32,11 @@ end
 
 --util.PrecacheSound("ambient/fire/fire_small1.wav")
 
--- no noclip
+-- no noclip.  UNLESS sv_cheats = 1 :)
 function GM:PlayerNoClip()
-	--return true
+	if GetConVar("sv_cheats"):GetInt() == 1 then
+		return true
+	end
 	return false
 end
 

@@ -77,7 +77,7 @@ if SERVER then
 			end
 			net.SendPVS(self:GetPos())
 
-			self.next_refresh = CurTime()+5
+			self.next_refresh = CurTime()+PING_INTERVAL --5. NO MAGIC NUMBERS HERE BOIS
 		end
 	end
 else

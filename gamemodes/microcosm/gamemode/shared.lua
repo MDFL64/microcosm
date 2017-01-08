@@ -5,6 +5,14 @@ GM.Website = "http://cogg.rocks"
 
 DeriveGamemode( "base" )
 
+local cfg_dev
+
+if SERVER then
+	cfg_dev = CreateConVar("micro_cfg_dev","0",FCVAR_REPLICATED,"Enables noclip, fast respawn, and other developer features.")
+else
+	cfg_dev = GetConVar("micro_cfg_dev")
+end
+
 MICRO_SCALE = 1/32
 
 MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
@@ -34,8 +42,20 @@ end
 
 -- no noclip
 function GM:PlayerNoClip()
-	--return true
-	return false
+	return cfg_dev:GetBool()
+end
+
+if SERVER then
+	function GM:PostPlayerDeath(ply)
+		local spawntime = cfg_dev:GetBool() and 0 or 10
+		ply.respawn_time = CurTime()+spawntime
+	end
+
+	function GM:PlayerDeathThink(ply)
+		if ply.respawn_time==nil or CurTime()>ply.respawn_time then
+			ply:Spawn()
+		end
+	end
 end
 
 function GM:GravGunPunt()

@@ -123,7 +123,7 @@ local function minify(ent)
 
 end]]
 
-local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",0,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
+local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
 
 function GM:InitPostEntity()
 	for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
@@ -328,18 +328,6 @@ end)
 
 function GM:PlayerInitialSpawn(ply)
 	ply:SetTeam(5)
-end
-
-function GM:PostPlayerDeath(ply)
-	ply.respawn_time = CurTime()+10
-end
-
-function GM:PlayerDeathThink(ply)
-	--print("rerr?",ply.respawn_time,CurTime())
-	--return true
-	if ply.respawn_time==nil or CurTime()>ply.respawn_time then
-		ply:Spawn()
-	end
 end
 
 function GM:PlayerCanHearPlayersVoice(listener, talker)

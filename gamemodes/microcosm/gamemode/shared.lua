@@ -5,6 +5,38 @@ GM.Website = "http://cogg.rocks"
 
 DeriveGamemode( "base" )
 
+local modules = file.Find("micro_modules/*.lua","LUA")
+for _,module in pairs(modules) do
+	local start = module:sub(1,3)
+	local path = "micro_modules/"..module
+	if SERVER then
+		if start=="sv_" then
+			include(path)
+		elseif start=="sh_" then
+			include(path)
+			AddCSLuaFile(path)
+		elseif start=="cl_" then
+			AddCSLuaFile(path)
+		else
+			ErrorNoHalt("Not sure what to do with Microcosm module: "..module.."\n")
+		end
+	else
+		if start=="cl_" or start=="sh_" then
+			include(path)
+		else
+			ErrorNoHalt("Not sure what to do with Microcosm module: "..module.."\n")
+		end
+	end
+end
+
+local cfg_dev
+
+if SERVER then
+	cfg_dev = CreateConVar("micro_cfg_dev","0",FCVAR_REPLICATED,"Enables noclip, fast respawn, and other developer features.")
+else
+	cfg_dev = GetConVar("micro_cfg_dev")
+end
+
 MICRO_SCALE = 1/32
 
 MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
@@ -34,10 +66,20 @@ end
 
 -- no noclip.  UNLESS sv_cheats = 1 :)
 function GM:PlayerNoClip()
-	if GetConVar("sv_cheats"):GetInt() == 1 then
-		return true
+	return cfg_dev:GetBool()
+end
+
+if SERVER then
+	function GM:PostPlayerDeath(ply)
+		local spawntime = cfg_dev:GetBool() and 0 or 10
+		ply.respawn_time = CurTime()+spawntime
 	end
-	return false
+
+	function GM:PlayerDeathThink(ply)
+		if ply.respawn_time==nil or CurTime()>ply.respawn_time then
+			ply:Spawn()
+		end
+	end
 end
 
 function GM:GravGunPunt()

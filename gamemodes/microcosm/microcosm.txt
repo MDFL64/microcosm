@@ -4,4 +4,24 @@
 	"title"		"Microcosm"
 	"menusystem"	"1"
 	"maps"			"^micro_"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"micro_cfg_dev"
+			"text"		"Developer Mode"
+			"help"		"Enables noclip, fast respawn, and other developer features."
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+		2
+		{
+			"name"		"micro_cfg_shipdesigns"
+			"text"		"Ship Designs"
+			"help"		"See code for valid values."
+			"type"		"Text"
+			"default"	"std"
+		}
+	}
 }

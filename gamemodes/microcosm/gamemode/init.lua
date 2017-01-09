@@ -2,7 +2,7 @@ AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
  
 include("shared.lua")
-include("sv_artifact_control.lua")
+--include("sv_artifact_control.lua")
 
 resource.AddWorkshop("822566180")
 resource.AddWorkshop("822569462")
@@ -21,17 +21,20 @@ sun:SetKeyValue("size", 0 )
 sun:SetKeyValue("overlaysize", math.sqrt(sun_size)*0 )
 ]]
 
-MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
+--MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
 
 local downscale = false
 
 function GM:PlayerSpawn( ply )
 	ply:StripWeapons()
-	if IsValid(ply.micro_ship) then
-		if !ply.shown_help_notify then
+
+	local ship = MICRO_SHIP_ENTS[ply:Team()]
+
+	if IsValid(ship) then
+		--[[if !ply.shown_help_notify then
 			ply.shown_help_notify=true
 			ply:SendLua("MICRO_NOTIFY_REALHELP()")
-		end
+		end]]
 
 		ply:SetModel("models/player/barney.mdl")
 		ply:Give("weapon_physcannon")
@@ -40,8 +43,6 @@ function GM:PlayerSpawn( ply )
 
 		--ply:Give("gmod_camera")
 		--ply:SetNoCollideWithTeammates(true)
-	
-		local ship = ply.micro_ship
 
 		--ply:SetShip(ship)
 		ply:SetPos(ship:GetInternalOrigin()+Vector(0,0,-30))
@@ -123,10 +124,8 @@ local function minify(ent)
 
 end]]
 
-local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
-
 function GM:InitPostEntity()
-	for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
+	--[[for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 
 		local micro_ship_origin = origin_ent:GetPos()
 		
@@ -270,7 +269,7 @@ function GM:InitPostEntity()
 		table.insert(MICRO_SHIP_ENTS,ship_ent)
 
 		--PrintTable(hull:GetMaterials())
-	end
+	end]]
 
 	for _,v in pairs(ents.FindByClass("prop_door_rotating")) do
 		--local kvs = v:GetKeyValues()
@@ -313,7 +312,7 @@ concommand.Add("micro_jointeam",function(ply,_,args)
 		if (ply:Team()==realteam) then return end
 		ply:SetTeam(realteam)
 
-		ply:SetShip(MICRO_SHIP_ENTS[team])
+		--ply:SetShip(MICRO_SHIP_ENTS[team])
 		ply:KillSilent()
 		--hook.Call("PlayerSpawn",GAMEMODE,ply)
 		

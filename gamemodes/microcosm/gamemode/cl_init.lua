@@ -43,11 +43,12 @@ end)
 --print("shader",matSky:GetTexture("$basetexture"):GetName())
 
 -- 10 light years
+--[[
 local stars = {}
 
 for i=1,1000 do
 	table.insert(stars,VectorRand() * 50)
-end
+end]]
  
 --local x = -1000
 
@@ -153,7 +154,7 @@ net.Receive("airsup_minify", function()
 	end
 end)]]
 
-timer.Simple(10,function()
+--[[timer.Simple(10,function()
 	chat.AddText(Color(255,0,255),"Welcome 2 Dumb Roleplay Deathmatch!")
 	chat.AddText(Color(255,0,255),"Take a look at our rules and AWSOME donater perks by hitting F1 or typing /help")
 	chat.AddText(Color(255,0,255),"Join a team by hitting F2 or typing /team")
@@ -177,7 +178,7 @@ timer.Create("micro_drd_annoy",20,0,function()
 			notification.AddLegacy(note,NOTIFY_ERROR,20)
 		end
 	end
-end)
+end)]]
 
 function GM:CalcView(ply, pos, angles, fov)
 	if IsValid(MICRO_CONTROLLING) then
@@ -292,8 +293,8 @@ function GM:OnPlayerChat(player, text, bTeamOnly, bPlayerIsDead)
 	return bPlayerIsDead
 end
  
-function MICRO_NOTIFY_REALHELP()
-	notification.AddLegacy("This is kind-of complicated, so maybe you should do that...",NOTIFY_HINT,20)
-	notification.AddLegacy("You can view the REAL help now, using F1 or /help",NOTIFY_HINT,20)
-	notification.AddLegacy("Just kidding about the DarkRP thing.",NOTIFY_HINT,20)
-end
+--function MICRO_NOTIFY_REALHELP()
+	--notification.AddLegacy("This is kind-of complicated, so maybe you should do that...",NOTIFY_HINT,20)
+	--notification.AddLegacy("You can view the REAL help now, using F1 or /help",NOTIFY_HINT,20)
+	--notification.AddLegacy("Just kidding about the DarkRP thing.",NOTIFY_HINT,20)
+--end

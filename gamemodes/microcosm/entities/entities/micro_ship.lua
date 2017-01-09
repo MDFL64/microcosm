@@ -74,6 +74,8 @@ end
 
 function ENT:DrawTranslucent()
 	local main_hull = self:GetMainHull()
+	if !IsValid(main_hull) then return end
+
 	local hurt = IsComponentHurt(main_hull)
 
 	if self:GetThrottle()>0 and !hurt then
@@ -108,6 +110,8 @@ function ENT:Think()
 
 		--debugoverlay.Sphere(self:GetPos(),100,1,Color(0,0,255),true)
 		local main_hull = self:GetMainHull()
+		if !IsValid(main_hull) then return end
+
 		local hurt = IsComponentHurt(main_hull)
 
 		if (self.ctrl_h!=0 or self.ctrl_v!=0) and !hurt then
@@ -145,6 +149,8 @@ end
 function ENT:PhysicsSimulate(phys, dt)
 	--print("n")
 	local main_hull = self:GetMainHull()
+	if !IsValid(main_hull) then return end
+
 	if IsComponentHurt(main_hull) then
 		local av = phys:GetAngleVelocity()
 		return -av,Vector(0,0,-50000)*MICRO_SCALE*dt,SIM_GLOBAL_ACCELERATION

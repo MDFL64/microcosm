@@ -111,7 +111,7 @@ function ENT:Use(ply)
     --local micro_ship_origin = origin_ent:GetPos()
     --local micro_ship_angles = origin_ent:GetAngles()
     --local ship = Entity(MICRO_SHIP_ID or -1)
-    for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) d
+    for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
       local micro_ship_origin = origin_ent:GetPos()
       --print(ship)
       print(micro_ship_origin)

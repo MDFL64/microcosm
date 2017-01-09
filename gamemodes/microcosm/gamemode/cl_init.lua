@@ -75,10 +75,14 @@ function DoHurtScreenEffect(color,w,h)
 end
 
 function GM:PreRender()
-	local ship_ent = Entity(MICRO_SHIP_ID or -1)
+	local ship_info = LocalPlayer():GetShipInfo()
+
+	local ship_ent
+	if ship_info then ship_ent = ship_info.entity end
+
 	if IsValid(ship_ent) then
 
-		local origin = ship_ent:GetInternalOrigin()
+		local origin = ship_info.origin
 
 		local real_pos = ship_ent:GetPos()
 		local real_ang = ship_ent:GetAngles()
@@ -110,14 +114,14 @@ function GM:PreRender()
 
 		render.SuppressEngineLighting(true)
 
-		local main_hull = ship_ent:GetMainHull()
+		--local main_hull = ship_ent:GetMainHull()
 
 
 		render.SetModelLighting(BOX_FRONT, .1,.1,.1)
 		render.SetModelLighting(BOX_BACK, .1,.1,.1)
 		render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
 		render.SetModelLighting(BOX_LEFT, .1,.1,.1)
-		if IsComponentHurt(main_hull) then
+		if false and IsComponentHurt(main_hull) then
 			render.SetModelLighting(BOX_TOP, 1,0,0)
 		else
 			render.SetModelLighting(BOX_TOP, 1,1,1)

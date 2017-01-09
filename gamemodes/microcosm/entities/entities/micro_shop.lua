@@ -160,6 +160,13 @@ local items = {
 		pv="models/items/healthkit.mdl",
 		ent="micro_item_medkit"
 	},
+	--[[{
+    	name="Armor Kit",
+    	desc="Restores 200 crew armor.",
+    	cost=15,
+    	pv="models/Items/battery.mdl",
+    	ent="micro_item_armorkit"
+  	},--]]
 	{
 		name="Standard Cannon Shells",
 		desc="Reloads 200 standard cannon shells.",

@@ -252,6 +252,13 @@ function GM:InitPostEntity()
 		nav:Spawn()
 		nav.ship = ship_ent
 
+		--[[skylgiht test code
+    	local teleporter = ents.Create("micro_teleporter")
+    	teleporter:SetPos(micro_ship_origin+Vector(-300,0,8))
+    	teleporter:Spawn()
+    	teleporter.ship = ship_ent
+    	ship_ent.teleporter_ent = teleporter --]]
+
 		local spk = ents.Create("micro_speaker")
 		spk:SetPos(micro_ship_origin+Vector(0,0,-100))
 		spk:Spawn()

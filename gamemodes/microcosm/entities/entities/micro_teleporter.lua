@@ -21,10 +21,10 @@ local sound_teleport = Sound("ambient/levels/citadel/weapon_disintegrate2.wav")
 
 function ENT:TeleportIsInRange()
 	local result = false
-	if false
-
-		result = true
-	end
+	--if false
+	--
+	--	result = true
+	--end
 	return result --true or false
 end
 
@@ -52,11 +52,11 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:CheckBlocked() ---------------night want to use for check blocking of teleporter on either end, byut WHO CARES?!!! (lol)
+--[[function ENT:CheckBlocked() ---------------night want to use for check blocking of teleporter on either end, byut WHO CARES?!!! (lol)
 	local r = 18
 	local tr = util.TraceHull{start=self:GetItemSpawn(),endpos=self:GetItemSpawn(),mins=Vector(-1,-1,-1)*r, maxs=Vector(1,1,1)*r, filter=self}
 	return tr.Hit
-end
+end--]]
 
 function ENT:GetScreenText()
 	local ship = Entity(MICRO_SHIP_ID or -1)
@@ -64,8 +64,8 @@ function ENT:GetScreenText()
 
 	if hurt then
 		return "GENJI'S TELEPORTER",Color(255,0,255)
-	elseif self:CheckBlocked() then
-		return "BLOCKED",Color(255,0,0)
+	--elseif self:CheckBlocked() then
+	--	return "BLOCKED",Color(255,0,0)
 	elseif self:TeleportIsInRange() then ---getti is in range!!
 		return "READY",Color(0,255,0)
 	else
@@ -104,7 +104,23 @@ function ENT:Draw() -- i thinking this is how make little screen.  maybe make TE
 	cam.End3D2D()
 end
 
---might be error if ufo uses full reload??
+function ENT:Use(ply)
+  local hurt = IsComponentHurt(self)
+  if not hurt then
+    --local origin_ent = pairs(ents.FindByName("micro_ship_*"))
+    --local micro_ship_origin = origin_ent:GetPos()
+    --local micro_ship_angles = origin_ent:GetAngles()
+    --local ship = Entity(MICRO_SHIP_ID or -1)
+    for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) d
+      local micro_ship_origin = origin_ent:GetPos()
+      --print(ship)
+      print(micro_ship_origin)
+      --print(micro_ship_angles)
+      ---------------ply:SetPos(micro_ship_origin)
+      --ply:SetAngles(micro_ship_angles)
+    end
+  end
+end
 
 
 --[[ copy-pasted code storage~

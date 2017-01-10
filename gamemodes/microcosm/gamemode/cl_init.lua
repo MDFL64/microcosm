@@ -77,15 +77,12 @@ end
 function GM:PreRender()
 	local ship_info = LocalPlayer():GetShipInfo()
 
-	local ship_ent
-	if ship_info then ship_ent = ship_info.entity end
-
-	if IsValid(ship_ent) then
+	if ship_info and IsValid(ship_info.entity) then
 
 		local origin = ship_info.origin
 
-		local real_pos = ship_ent:GetPos()
-		local real_ang = ship_ent:GetAngles()
+		local real_pos = ship_info.entity:GetPos()
+		local real_ang = ship_info.entity:GetAngles()
 
 		local eye_pos = LocalPlayer():EyePos()
 		local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()

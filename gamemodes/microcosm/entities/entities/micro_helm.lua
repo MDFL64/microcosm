@@ -47,6 +47,7 @@ function ENT:Think()
 end
 
 function ENT:sendControls(buttons,buttons_pressed,x,y)
+
 	local hurt = IsComponentHurt(self)
 	if not IsValid(self.ship) or hurt then return end
 
@@ -101,12 +102,13 @@ function ENT:Draw()
 
 	self:DrawModel()
 
-	local ship = Entity(MICRO_SHIP_ID or -1)
-	if IsValid(ship) then
-		local color = ship:GetColor()
-		local paur = ship:GetThrottle()
-		local pitch = ship:GetAngles().p/90
-		local yaw = ship:GetAngles().y
+	local ship_info = self:GetShipInfo()
+
+	if ship_info and IsValid(ship_info.entity) then
+		local color = ship_info.entity:GetColor()
+		local paur = ship_info.entity:GetThrottle()
+		local pitch = ship_info.entity:GetAngles().p/90
+		local yaw = ship_info.entity:GetAngles().y
 		
 		local hurt = IsComponentHurt(self)
 
@@ -153,11 +155,11 @@ function ENT:Draw()
 			surface.DrawRect(31, 35, 18, 1 )
 			surface.DrawRect(75, 25, 1, 20 )
 
-			if ship:GetIsHome() then
+			if ship_info.entity:GetIsHome() then
 				draw.SimpleText("DOCKED","DermaDefault",75,12,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 			end
 
-			if ship:GetIsHooked() then
+			if ship_info.entity:GetIsHooked() then
 				draw.SimpleText("HOOKED","DermaDefault",75,55,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 			end
 

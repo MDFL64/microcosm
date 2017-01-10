@@ -4,6 +4,8 @@ AddCSLuaFile()
 ENT.Type = "anim"
 ENT.RenderGroup = RENDERGROUP_BOTH
 
+ENT.MaxMicroHealth = 2000
+
 local matFire = Material("effects/fire_cloud1")
 
 function ENT:SetupDataTables()
@@ -36,6 +38,8 @@ function ENT:Initialize()
 		self.ctrl_t = 0
 
 		self.hook_ents = {}
+
+		self:SetHealth(self.MaxMicroHealth)
 	else
 		MICRO_SHIP_INFO[self:GetShipID()].entity = self
 	end
@@ -50,6 +54,7 @@ end
 --end
 
 function ENT:Draw()
+	print(self:Health())
 	--[[if Entity(MICRO_SHIP_ID or -1)!=self then
 		for _,hull in pairs(self.hulls) do
 			hull:SetRenderOrigin(self:GetPos())
@@ -103,6 +108,9 @@ function ENT:Think()
 		self:PhysWake()
 
 		self:SetThrottle(math.Clamp(self:GetThrottle() + self.ctrl_t*FrameTime()*10,-1,1))
+		if math.random()>.9 then
+			self:SetHealth(self:Health()-1)
+		end
 
 		--debugoverlay.Sphere(self:GetPos(),100,1,Color(0,0,255),true)
 		local main_hull = nil --self:GetMainHull()

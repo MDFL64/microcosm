@@ -13,6 +13,10 @@ function ENTITY:GetShipInfo()
 	end
 end
 
+function ENTITY:IsBroken()
+	return self:Health() < self:GetMaxHealth()*.3
+end
+
 if SERVER then
 	--MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
 

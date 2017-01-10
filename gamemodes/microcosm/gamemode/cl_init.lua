@@ -118,7 +118,7 @@ function GM:PreRender()
 		render.SetModelLighting(BOX_BACK, .1,.1,.1)
 		render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
 		render.SetModelLighting(BOX_LEFT, .1,.1,.1)
-		if false and IsComponentHurt(main_hull) then
+		if ship_info.entity:IsBroken() then
 			render.SetModelLighting(BOX_TOP, 1,0,0)
 		else
 			render.SetModelLighting(BOX_TOP, 1,1,1)

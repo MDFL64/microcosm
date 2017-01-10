@@ -4,7 +4,7 @@ AddCSLuaFile()
 ENT.Type = "anim"
 ENT.RenderGroup = RENDERGROUP_BOTH
 
-ENT.MaxMicroHealth = 2000
+local SHIP_HEALTH = 2000
 
 local matFire = Material("effects/fire_cloud1")
 
@@ -39,7 +39,8 @@ function ENT:Initialize()
 
 		self.hook_ents = {}
 
-		self:SetHealth(self.MaxMicroHealth)
+		self:SetHealth(SHIP_HEALTH)
+		self:SetMaxHealth(SHIP_HEALTH)
 	else
 		MICRO_SHIP_INFO[self:GetShipID()].entity = self
 	end
@@ -54,7 +55,6 @@ end
 --end
 
 function ENT:Draw()
-	print(self:Health())
 	--[[if Entity(MICRO_SHIP_ID or -1)!=self then
 		for _,hull in pairs(self.hulls) do
 			hull:SetRenderOrigin(self:GetPos())
@@ -74,17 +74,15 @@ function ENT:Draw()
 end
 
 function ENT:DrawTranslucent()
-	local main_hull = nil --self:GetMainHull()
-	if !IsValid(main_hull) then return end
 
-	local hurt = IsComponentHurt(main_hull)
+	local hurt = self:IsBroken()
 
 	if self:GetThrottle()>0 and !hurt then
 		local throttle = self:GetThrottle()
 
 		local scroll = -CurTime()*10*throttle
 
-		local offsets = main_hull:GetThrustEffectOffsets()
+		local offsets = {}--main_hull:GetThrustEffectOffsets()
 		local offset_mid = self:GetAngles():Forward()*-10*throttle
 		local offset_end =  self:GetAngles():Forward()*-15*throttle
 
@@ -108,15 +106,8 @@ function ENT:Think()
 		self:PhysWake()
 
 		self:SetThrottle(math.Clamp(self:GetThrottle() + self.ctrl_t*FrameTime()*10,-1,1))
-		if math.random()>.9 then
-			self:SetHealth(self:Health()-1)
-		end
 
-		--debugoverlay.Sphere(self:GetPos(),100,1,Color(0,0,255),true)
-		local main_hull = nil --self:GetMainHull()
-		if !IsValid(main_hull) then return end
-
-		local hurt = IsComponentHurt(main_hull)
+		local hurt = self:IsBroken()
 
 		if (self.ctrl_h!=0 or self.ctrl_v!=0) and !hurt then
 			self.speaker_strafe:Play()
@@ -132,7 +123,7 @@ function ENT:Think()
 
 
 		if !IsValid(self.trail) and self:GetThrottle()>0 and !hurt then
-			local offset = main_hull:GetThrustEffectOffsets()[1]
+			local offset = Vector(-10,0,0) --main_hull:GetThrustEffectOffsets()[1]
 
 			self.trail = ents.Create("micro_trail")
 			self.trail:SetParent(self)
@@ -151,11 +142,8 @@ function ENT:Think()
 end
 
 function ENT:PhysicsSimulate(phys, dt)
-	--print("n")
-	local main_hull = nil --self:GetMainHull()
-	if !IsValid(main_hull) then return end
 
-	if IsComponentHurt(main_hull) then
+	if self:IsBroken() then
 		local av = phys:GetAngleVelocity()
 		return -av,Vector(0,0,-50000)*MICRO_SCALE*dt,SIM_GLOBAL_ACCELERATION
 	end
@@ -217,7 +205,7 @@ end
 function ENT:PhysicsCollide(data, phys)
 	if ( data.Speed > 30 ) then
 		local pos = self:WorldToLocal(data.HitPos)
-		sound.Play(sound_crash,self:GetInternalOrigin()+pos/MICRO_SCALE,100,100,1)
+		sound.Play(sound_crash,self.info.origin+pos/MICRO_SCALE,100,100,1)
 
 		for i,ply in pairs(team.GetPlayers(self.team_id)) do
 			ply:ViewPunch( Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*(data.Speed/2) )

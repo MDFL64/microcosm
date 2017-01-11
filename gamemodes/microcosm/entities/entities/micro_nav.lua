@@ -65,7 +65,8 @@ if SERVER then
 					net.WriteFloat(rad)
 				end
 
-				for _,ship in pairs(MICRO_SHIP_ENTS) do
+				for _,info in pairs(MICRO_SHIP_INFO) do
+					local ship = info.entity
 					if ship==self.ship then continue end
 					write_ent(ship)
 				end

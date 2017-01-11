@@ -4,21 +4,19 @@ AddCSLuaFile()
 ENT.Type = "anim"
 ENT.RenderGroup = RENDERGROUP_BOTH
 
+ENT.MaxMicroHealth = 2000
+
 local matFire = Material("effects/fire_cloud1")
 
 function ENT:SetupDataTables()
-	self:NetworkVar("Vector", 0, "InternalOrigin")
+	--self:NetworkVar("Vector", 0, "InternalOrigin")
+	self:NetworkVar("Int", 0, "ShipID")
 	self:NetworkVar("Float", 0, "Throttle")
 	self:NetworkVar("Bool", 0, "IsHome")
 	self:NetworkVar("Bool", 1, "IsHooked")
-	self:NetworkVar("Entity", 0, "MainHull")
 end
 
 function ENT:Initialize()
-
-	--self:SetModel("models/props_junk/watermelon01.mdl")
-
-	--self:PhysicsInitStandard()]]
 
 	if SERVER then
 		self:PhysicsInitSphere(16,"metal")
@@ -40,8 +38,10 @@ function ENT:Initialize()
 		self.ctrl_t = 0
 
 		self.hook_ents = {}
+
+		self:SetHealth(self.MaxMicroHealth)
 	else
-		self.hulls = {}
+		MICRO_SHIP_INFO[self:GetShipID()].entity = self
 	end
 
 	--self:SetRenderMode(RENDERMODE_TRANSALPHA)
@@ -54,7 +54,8 @@ end
 --end
 
 function ENT:Draw()
-	if Entity(MICRO_SHIP_ID or -1)!=self then
+	print(self:Health())
+	--[[if Entity(MICRO_SHIP_ID or -1)!=self then
 		for _,hull in pairs(self.hulls) do
 			hull:SetRenderOrigin(self:GetPos())
 			hull:SetRenderAngles(self:GetAngles())
@@ -65,15 +66,17 @@ function ENT:Draw()
 			matrix:Translate(-self:GetInternalOrigin()+self:GetPos())
 			cam.PushModelMatrix(matrix)
 			hull:DrawModel()
-			cam.PopModelMatrix()]]
+			cam.PopModelMatrix()
 		end
 
 		--self:DrawModel()
-	end
+	end]]
 end
 
 function ENT:DrawTranslucent()
-	local main_hull = self:GetMainHull()
+	local main_hull = nil --self:GetMainHull()
+	if !IsValid(main_hull) then return end
+
 	local hurt = IsComponentHurt(main_hull)
 
 	if self:GetThrottle()>0 and !hurt then
@@ -105,9 +108,14 @@ function ENT:Think()
 		self:PhysWake()
 
 		self:SetThrottle(math.Clamp(self:GetThrottle() + self.ctrl_t*FrameTime()*10,-1,1))
+		if math.random()>.9 then
+			self:SetHealth(self:Health()-1)
+		end
 
 		--debugoverlay.Sphere(self:GetPos(),100,1,Color(0,0,255),true)
-		local main_hull = self:GetMainHull()
+		local main_hull = nil --self:GetMainHull()
+		if !IsValid(main_hull) then return end
+
 		local hurt = IsComponentHurt(main_hull)
 
 		if (self.ctrl_h!=0 or self.ctrl_v!=0) and !hurt then
@@ -144,7 +152,9 @@ end
 
 function ENT:PhysicsSimulate(phys, dt)
 	--print("n")
-	local main_hull = self:GetMainHull()
+	local main_hull = nil --self:GetMainHull()
+	if !IsValid(main_hull) then return end
+
 	if IsComponentHurt(main_hull) then
 		local av = phys:GetAngleVelocity()
 		return -av,Vector(0,0,-50000)*MICRO_SCALE*dt,SIM_GLOBAL_ACCELERATION

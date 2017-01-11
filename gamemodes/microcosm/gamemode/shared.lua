@@ -5,6 +5,38 @@ GM.Website = "http://cogg.rocks"
 
 DeriveGamemode( "base" )
 
+-- Constants and team related stuff.
+MICRO_SCALE = 1/32
+
+MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
+ 
+MICRO_TEAM_COLORS = {
+	Color(255,0,0),
+	Color(0,255,0),
+	Color(0,0,255),
+	Color(255,255,0),
+	[0]=Color(150,150,150)
+}
+
+MICRO_HOME_SPOTS = {
+	{Vector(-2805.373047,-2629.304932,176.031250),Angle(0,90,0)}, -- top of spawn
+	{Vector(-1225.940552,1025.711182,232.031250),Angle(0,-90,0)}, -- above subway
+	{Vector(1089.395142,1840.912476,-203.968750),Angle(0,-90,0)}, -- warehouse
+	{Vector(1888.408936,-1887.610718,-495.968750),Angle(0,180,0)} -- back of train tunnel
+}
+
+for i=1,5 do
+	local n = i%5
+	team.SetUp(i,MICRO_TEAM_NAMES[n],MICRO_TEAM_COLORS[n],false)
+end
+
+-- Easy hook function.
+function hook.easy(event,callback)
+	local source = debug.getinfo(2,"S").source
+	hook.Add(event,"easyhook"..source,callback)
+end
+
+-- Module loader.
 local modules = file.Find("micro_modules/*.lua","LUA")
 for _,module in pairs(modules) do
 	local start = module:sub(1,3)
@@ -29,6 +61,7 @@ for _,module in pairs(modules) do
 	end
 end
 
+-- Dev setting.
 local cfg_dev
 
 if SERVER then
@@ -37,8 +70,8 @@ else
 	cfg_dev = GetConVar("micro_cfg_dev")
 end
 
-MICRO_SCALE = 1/32
 
+<<<<<<< HEAD
 MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
  
 MICRO_TEAM_COLORS = {
@@ -65,6 +98,8 @@ end
 --util.PrecacheSound("ambient/fire/fire_small1.wav")
 
 -- no noclip.  UNLESS sv_cheats = 1 :)
+=======
+>>>>>>> unstable
 function GM:PlayerNoClip()
 	return cfg_dev:GetBool()
 end
@@ -82,6 +117,7 @@ if SERVER then
 	end
 end
 
+-- Rerr
 function GM:GravGunPunt()
 	return false
 end
@@ -102,6 +138,7 @@ function ENTITY:PhysicsInitStandard()
 end
 
 local PLAYER = FindMetaTable("Player")
+--[[
 if SERVER then
 	util.AddNetworkString("micro_setship")
 
@@ -123,8 +160,9 @@ else
 		if id == 0 then id=nil end
 		MICRO_SHIP_ID = id
 	end)
-end
+end]]
 
+-- Control system, needs to be refactored later.
 if SERVER then
 	util.AddNetworkString("micro_enablecontrol")
 	util.AddNetworkString("micro_controls")
@@ -219,6 +257,7 @@ else
 	end
 end
 
+-- Tracer system. It's okay I guess, although would be nice to get effects fixed.
 if SERVER then
 	util.AddNetworkString("micro_tracer")
 	function SendTracer(type,start,stop)

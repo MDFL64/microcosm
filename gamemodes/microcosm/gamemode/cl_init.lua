@@ -43,11 +43,12 @@ end)
 --print("shader",matSky:GetTexture("$basetexture"):GetName())
 
 -- 10 light years
+--[[
 local stars = {}
 
 for i=1,1000 do
 	table.insert(stars,VectorRand() * 50)
-end
+end]]
  
 --local x = -1000
 
@@ -74,13 +75,14 @@ function DoHurtScreenEffect(color,w,h)
 end
 
 function GM:PreRender()
-	local ship_ent = Entity(MICRO_SHIP_ID or -1)
-	if IsValid(ship_ent) then
+	local ship_info = LocalPlayer():GetShipInfo()
 
-		local origin = ship_ent:GetInternalOrigin()
+	if ship_info and IsValid(ship_info.entity) then
 
-		local real_pos = ship_ent:GetPos()
-		local real_ang = ship_ent:GetAngles()
+		local origin = ship_info.origin
+
+		local real_pos = ship_info.entity:GetPos()
+		local real_ang = ship_info.entity:GetAngles()
 
 		local eye_pos = LocalPlayer():EyePos()
 		local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()
@@ -109,14 +111,14 @@ function GM:PreRender()
 
 		render.SuppressEngineLighting(true)
 
-		local main_hull = ship_ent:GetMainHull()
+		--local main_hull = ship_ent:GetMainHull()
 
 
 		render.SetModelLighting(BOX_FRONT, .1,.1,.1)
 		render.SetModelLighting(BOX_BACK, .1,.1,.1)
 		render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
 		render.SetModelLighting(BOX_LEFT, .1,.1,.1)
-		if IsComponentHurt(main_hull) then
+		if false and IsComponentHurt(main_hull) then
 			render.SetModelLighting(BOX_TOP, 1,0,0)
 		else
 			render.SetModelLighting(BOX_TOP, 1,1,1)
@@ -153,7 +155,7 @@ net.Receive("airsup_minify", function()
 	end
 end)]]
 
-timer.Simple(10,function()
+--[[timer.Simple(10,function()
 	chat.AddText(Color(255,0,255),"Welcome 2 Dumb Roleplay Deathmatch!")
 	chat.AddText(Color(255,0,255),"Take a look at our rules and AWSOME donater perks by hitting F1 or typing /help")
 	chat.AddText(Color(255,0,255),"Join a team by hitting F2 or typing /team")
@@ -177,7 +179,7 @@ timer.Create("micro_drd_annoy",20,0,function()
 			notification.AddLegacy(note,NOTIFY_ERROR,20)
 		end
 	end
-end)
+end)]]
 
 function GM:CalcView(ply, pos, angles, fov)
 	if IsValid(MICRO_CONTROLLING) then
@@ -292,8 +294,8 @@ function GM:OnPlayerChat(player, text, bTeamOnly, bPlayerIsDead)
 	return bPlayerIsDead
 end
  
-function MICRO_NOTIFY_REALHELP()
-	notification.AddLegacy("This is kind-of complicated, so maybe you should do that...",NOTIFY_HINT,20)
-	notification.AddLegacy("You can view the REAL help now, using F1 or /help",NOTIFY_HINT,20)
-	notification.AddLegacy("Just kidding about the DarkRP thing.",NOTIFY_HINT,20)
-end
+--function MICRO_NOTIFY_REALHELP()
+	--notification.AddLegacy("This is kind-of complicated, so maybe you should do that...",NOTIFY_HINT,20)
+	--notification.AddLegacy("You can view the REAL help now, using F1 or /help",NOTIFY_HINT,20)
+	--notification.AddLegacy("Just kidding about the DarkRP thing.",NOTIFY_HINT,20)
+--end

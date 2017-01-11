@@ -20,6 +20,8 @@ end
 
 if SERVER then
 	function ENT:Think()
+		if true then return end
+
 		local a = self:GetColor().a
 		local phys = self:GetPhysicsObject()
 

@@ -35,7 +35,7 @@ function ENT:GetMicroHealthDisplayName()
 	return "Hull & Engines"
 end
 
-if CLIENT then
+--[[if CLIENT then
 	function ENT:Think()
 		local ship = self:GetShip()
 		if IsValid(ship) and !self.paired then
@@ -55,7 +55,7 @@ if CLIENT then
 		--print(self:GetShip())
 		--print("balls")
 	end
-end
+end]]
 
 function ENT:GetThrustEffectOffsets()
 	if self:GetModel()=="models/smallbridge/station parts/sbbridgevisort.mdl" then

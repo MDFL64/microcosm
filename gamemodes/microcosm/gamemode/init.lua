@@ -2,52 +2,30 @@ AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
  
 include("shared.lua")
-include("sv_artifact_control.lua")
 
 resource.AddWorkshop("822566180")
 resource.AddWorkshop("822569462")
-
---[[
-local sun = list[1];
-
-local sun_size = 20
-
-local list = ents.FindByClass("env_sun")
-if ( #list > 0 ) then
-	sun = list[1]
-end
-
-sun:SetKeyValue("size", 0 )
-sun:SetKeyValue("overlaysize", math.sqrt(sun_size)*0 )
-]]
-
-MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
 
 local downscale = false
 
 function GM:PlayerSpawn( ply )
 	ply:StripWeapons()
-	if IsValid(ply.micro_ship) then
-		if !ply.shown_help_notify then
-			ply.shown_help_notify=true
-			ply:SendLua("MICRO_NOTIFY_REALHELP()")
-		end
 
-		ply:SetModel("models/player/barney.mdl")
+	ply:SetModel("models/player/barney.mdl")
+
+	local color = team.GetColor(ply:Team())
+	ply:SetPlayerColor( Vector(color.r/255,color.g/255,color.b/255) )
+
+
+
+	local info = MICRO_SHIP_INFO[ply:Team()]
+
+	if info then
 		ply:Give("weapon_physcannon")
 		ply:Give("micro_fixer")
-		--ply:Give("weapon_frag")
 
-		--ply:Give("gmod_camera")
-		--ply:SetNoCollideWithTeammates(true)
-	
-		local ship = ply.micro_ship
-
-		--ply:SetShip(ship)
-		ply:SetPos(ship:GetInternalOrigin()+Vector(0,0,-30))
+		ply:SetPos(info.player_spawn_point)
 		ply:SetEyeAngles(Angle(0,0,0))
-		local color = ship:GetColor()
-		ply:SetPlayerColor( Vector(color.r/255,color.g/255,color.b/255) )
 
 		if downscale then
 			local scale = 1/64
@@ -80,12 +58,12 @@ function GM:PlayerSpawn( ply )
 			]]
 		end
 	else
-		ply:SetModel("models/player/charple.mdl")
+		--[[ply:SetModel("models/player/charple.mdl")
 		ply:Give("weapon_crowbar")
 		ply:Give("weapon_pistol")
 		ply:Give("weapon_357")
 		ply:Give("weapon_smg1")
-		ply:Give("weapon_shotgun")
+		ply:Give("weapon_shotgun")]]
 
 		--ply:Give("micro_art_placer")
 	end
@@ -123,9 +101,8 @@ local function minify(ent)
 
 end]]
 
-local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
-
 function GM:InitPostEntity()
+<<<<<<< HEAD
 	for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 
 		local micro_ship_origin = origin_ent:GetPos()
@@ -279,14 +256,9 @@ function GM:InitPostEntity()
 		--PrintTable(hull:GetMaterials())
 	end
 
+=======
+>>>>>>> unstable
 	for _,v in pairs(ents.FindByClass("prop_door_rotating")) do
-		--local kvs = v:GetKeyValues()
-		--print(kvs["returndelay"])
-		--PrintTable(kvs)
-		--[[
-			ltime
-			PressureDelay
-		]]
 		v:SetKeyValue("returndelay",60*5)
 		v:Fire("unlock")
 	end
@@ -294,8 +266,9 @@ end
 
 
 function GM:SetupPlayerVisibility(ply)
-	if IsValid(ply.micro_ship) then
-		AddOriginToPVS(ply.micro_ship:GetPos())
+	local ship_info = ply:GetShipInfo()
+	if ship_info and IsValid(ship_info.entity) then
+		AddOriginToPVS(ship_info.entity:GetPos())
 	end
 end
 
@@ -320,18 +293,17 @@ concommand.Add("micro_jointeam",function(ply,_,args)
 		if (ply:Team()==realteam) then return end
 		ply:SetTeam(realteam)
 
-		ply:SetShip(MICRO_SHIP_ENTS[team])
+		--ply:SetShip(MICRO_SHIP_ENTS[team])
 		ply:KillSilent()
 		--hook.Call("PlayerSpawn",GAMEMODE,ply)
 		
 		-- DON'T BITCH AT ME ABOUT SPAGHETTI CODE AND ABOUT
 		-- HOW THIS IS TOO TIGHTLY COUPLED. I KNOW. I'LL FIX IT LATER.
 		if team!=0 then
-			MICRO_SHIP_ENTS[team].comms_ent:InitializeText(ply)
+			MICRO_SHIP_INFO[team].entity.comms_ent:InitializeText(ply)
 		end
 	end
 end)
-
 
 function GM:PlayerInitialSpawn(ply)
 	ply:SetTeam(5)

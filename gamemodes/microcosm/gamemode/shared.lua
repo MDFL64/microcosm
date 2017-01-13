@@ -108,7 +108,7 @@ function ENTITY:PhysicsInitStandard()
 	end
 end
 
-local PLAYER = FindMetaTable("Player")
+--local PLAYER = FindMetaTable("Player")
 --[[
 if SERVER then
 	util.AddNetworkString("micro_setship")
@@ -134,8 +134,8 @@ else
 end]]
 
 -- Control system, needs to be refactored later.
-if SERVER then
-	util.AddNetworkString("micro_enablecontrol")
+--if SERVER then
+	--[[util.AddNetworkString("micro_enablecontrol")
 	util.AddNetworkString("micro_controls")
 
 	function PLAYER:ProxyControls(ent)
@@ -156,7 +156,7 @@ if SERVER then
 		-- really shitty solution, make user release USE before they can press it to exit.
 		--[[if bit.band(buttons,IN_USE)==0 and not ply.control_ready_exit then
 			ply.control_ready_exit=true
-		end]]
+		end
 		local buttons_pressed = bit.band(bit.bxor(ply.control_last_buttons,buttons),buttons)
 
 		if
@@ -226,7 +226,7 @@ else
 			MICRO_LAST_EYE = cmd:GetViewAngles()
 		end
 	end
-end
+end]]
 
 -- Tracer system. It's okay I guess, although would be nice to get effects fixed.
 if SERVER then

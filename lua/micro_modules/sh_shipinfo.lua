@@ -18,7 +18,6 @@ function ENTITY:IsBroken()
 end
 
 if SERVER then
-	--MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
 
 	local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
 
@@ -26,7 +25,12 @@ if SERVER then
 
 		ship_ent.info.player_spawn_point = micro_ship_origin+Vector(0,0,-30)
 
-		local helm = ents.Create("micro_helm")
+		--[[local thing = ents.Create("micro_component")
+		thing:SetPos(micro_ship_origin+Vector(170,0,50))
+		thing:SetAngles(Angle(-80,0,0))
+		thing:Spawn()]]
+
+		local helm = ents.Create("micro_comp_helm")
 		if ship_design=="ufo" then
 			helm:SetPos(micro_ship_origin+Vector(170,0,-57))
 		else

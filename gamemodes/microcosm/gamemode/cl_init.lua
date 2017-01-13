@@ -68,12 +68,6 @@ end]]
 --print("==>")
 --print(airsup_ship_origin)
 
-function DoHurtScreenEffect(color,w,h)
-	for i=1,20 do
-		draw.SimpleText(string.char(math.random(33,126)),"DebugFixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-	end
-end
-
 function GM:PreRender()
 	local ship_info = LocalPlayer():GetShipInfo()
 
@@ -87,7 +81,7 @@ function GM:PreRender()
 		local eye_pos = LocalPlayer():EyePos()
 		local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()
 
-		local view = hook.Call("CalcView",GAMEMODE)
+		local view = hook.Call("CalcView",GAMEMODE, LocalPlayer())
 		if view then
 			eye_pos = view.origin or eye_pos
 		end
@@ -181,14 +175,14 @@ timer.Create("micro_drd_annoy",20,0,function()
 	end
 end)]]
 
-function GM:CalcView(ply, pos, angles, fov)
+--[[function GM:CalcView(ply, pos, angles, fov)
 	if IsValid(MICRO_CONTROLLING) then
 		if MICRO_CONTROLLING.controlView then
 			local t = MICRO_CONTROLLING:controlView(pos,angles,fov)
 			return t
 		end
 	end
-end
+end]]
 
 hook.Add("HUDPaint","micro_hud",function()
 	if !LocalPlayer():Alive() then

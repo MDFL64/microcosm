@@ -13,16 +13,24 @@ function ENTITY:GetShipInfo()
 	end
 end
 
-if SERVER then
-	--MICRO_SHIP_ENTS = MICRO_SHIP_ENTS or {}
+function ENTITY:IsBroken()
+	return self:Health() < self:GetMaxHealth()*.3
+end
 
-	local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See init.lua for values.")
+if SERVER then
+
+	local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See sh_shipinfo.lua for values.")
 
 	local function spawnInterior(ship_ent,micro_ship_origin,ship_design)
 
 		ship_ent.info.player_spawn_point = micro_ship_origin+Vector(0,0,-30)
 
-		local helm = ents.Create("micro_helm")
+		--[[local thing = ents.Create("micro_component")
+		thing:SetPos(micro_ship_origin+Vector(170,0,50))
+		thing:SetAngles(Angle(-80,0,0))
+		thing:Spawn()]]
+
+		local helm = ents.Create("micro_comp_helm")
 		if ship_design=="ufo" then
 			helm:SetPos(micro_ship_origin+Vector(170,0,-57))
 		else
@@ -48,29 +56,42 @@ if SERVER then
 		--ship_ent:SetMainHull(hull)
 
 		if ship_design=="ufo" then --again, select for green team's UFO!  Little green men!
-			local cannon = ents.Create("micro_cannon")
-			cannon:SetPos(micro_ship_origin+Vector(0,0,-80)) --bottom and centered
-			cannon:Spawn()
-			cannon:SetGunName("Abductor")
-			cannon:SetMicroHealth(100) --200 goes off the display :V, 100 is the default
-			cannon:SetAngles(Angle(0,-90,-90))
-			cannon.ship = ship_ent
-			ship_ent.cannon_1 = cannon
-		else
-			local cannon = ents.Create("micro_cannon")
-			cannon:SetPos(micro_ship_origin+Vector(0,316,0))
-			cannon:Spawn()
-			cannon:SetGunName("Port")
-			cannon.ship = ship_ent
-			ship_ent.cannon_1 = cannon
+			local door = ents.Create("micro_subhull")
+			door:SetModel("models/props_phx/construct/windows/window4x4.mdl")
+			door:SetPos(micro_ship_origin+Vector(48,-48,-65)) --bottom and centered
+			door:SetAngles(Angle(0,0,0))
+			door:Spawn()
 
-			local cannon = ents.Create("micro_cannon")
-			cannon:SetPos(micro_ship_origin+Vector(0,-316,0))
-			cannon:SetAngles(Angle(0,180,0))
+			local cannon = ents.Create("micro_comp_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(0,0,-60))
+			--cannon:SetAngles(Angle(0,0,0))
+			cannon:SetGunName("Abductor")
 			cannon:Spawn()
+		else
+			local door = ents.Create("micro_subhull")
+			door:SetModel("models/smallbridge/ship parts/sbhulldsp.mdl")
+			door:SetPos(micro_ship_origin+Vector(0,316,0))
+			door:SetSkin(1)
+			door:Spawn()
+
+			local door = ents.Create("micro_subhull")
+			door:SetModel("models/smallbridge/ship parts/sbhulldsp.mdl")			
+			door:SetPos(micro_ship_origin+Vector(0,-316,0))
+			door:SetAngles(Angle(0,180,0))
+			door:SetSkin(1)
+			door:Spawn()
+
+			local cannon = ents.Create("micro_comp_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(0,310,0))
+			cannon:SetAngles(Angle(-90,90,0))
+			cannon:SetGunName("Port")
+			cannon:Spawn()
+
+			local cannon = ents.Create("micro_comp_cannon")
+			cannon:SetPos(micro_ship_origin+Vector(0,-310,0))
+			cannon:SetAngles(Angle(-90,-90,0))
 			cannon:SetGunName("Starboard")
-			cannon.ship = ship_ent
-			ship_ent.cannon_2 = cannon
+			cannon:Spawn()
 		end
 			
 		local comms_panel = ents.Create("micro_comms")

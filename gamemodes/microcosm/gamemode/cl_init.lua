@@ -1,5 +1,15 @@
 include( 'shared.lua' )
 
+surface.CreateFont( "micro_big", {
+	font = "Verdana",
+	size = 32,
+})
+
+surface.CreateFont( "micro_med", {
+	font = "Verdana",
+	size = 24,
+})
+
 surface.CreateFont( "micro_shadow", {
 	font = "Verdana",
 	size = 16,
@@ -68,12 +78,6 @@ end]]
 --print("==>")
 --print(airsup_ship_origin)
 
-function DoHurtScreenEffect(color,w,h)
-	for i=1,20 do
-		draw.SimpleText(string.char(math.random(33,126)),"DebugFixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-	end
-end
-
 function GM:PreRender()
 	local ship_info = LocalPlayer():GetShipInfo()
 
@@ -87,7 +91,7 @@ function GM:PreRender()
 		local eye_pos = LocalPlayer():EyePos()
 		local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()
 
-		local view = hook.Call("CalcView",GAMEMODE)
+		local view = hook.Call("CalcView",GAMEMODE, LocalPlayer())
 		if view then
 			eye_pos = view.origin or eye_pos
 		end
@@ -118,7 +122,7 @@ function GM:PreRender()
 		render.SetModelLighting(BOX_BACK, .1,.1,.1)
 		render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
 		render.SetModelLighting(BOX_LEFT, .1,.1,.1)
-		if false and IsComponentHurt(main_hull) then
+		if ship_info.entity:IsBroken() then
 			render.SetModelLighting(BOX_TOP, 1,0,0)
 		else
 			render.SetModelLighting(BOX_TOP, 1,1,1)
@@ -181,24 +185,24 @@ timer.Create("micro_drd_annoy",20,0,function()
 	end
 end)]]
 
-function GM:CalcView(ply, pos, angles, fov)
+--[[function GM:CalcView(ply, pos, angles, fov)
 	if IsValid(MICRO_CONTROLLING) then
 		if MICRO_CONTROLLING.controlView then
 			local t = MICRO_CONTROLLING:controlView(pos,angles,fov)
 			return t
 		end
 	end
-end
+end]]
 
 hook.Add("HUDPaint","micro_hud",function()
 	if !LocalPlayer():Alive() then
 		surface.SetDrawColor(Color( 0, 0, 0))
 		surface.DrawRect(0, 0, ScrW(), ScrH())
 		draw.SimpleText("You will respawn shortly.","DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-	elseif IsValid(MICRO_CONTROLLING) then
-		if MICRO_CONTROLLING.controlHUD then
-			MICRO_CONTROLLING:controlHUD()
-		end
+	--elseif IsValid(MICRO_CONTROLLING) then
+	--	if MICRO_CONTROLLING.controlHUD then
+	--		MICRO_CONTROLLING:controlHUD()
+	--	end
 	else
 		local tr = LocalPlayer():GetEyeTrace()
 		if tr.Fraction < .003 and IsValid(tr.Entity) and tr.Entity.GetMicroHudText then

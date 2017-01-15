@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
 # microcosm
 EARLY-ACCESS PRE-ALPHA PROTOTYPE
 

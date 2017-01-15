@@ -112,17 +112,21 @@ function ENT:drawInfo(ship,broken)
 	end
 
 	draw_obj("*",ship:GetColor(),ship:GetPos(),ship:GetAngles())
-	draw_obj("#",ship:GetColor(),self.home_pos)
+	if self.home_pos then
+		draw_obj("#",ship:GetColor(),self.home_pos)
+	end
 
-	for i,data in pairs(self.data) do
-		if IsValid(data.ent) and !hurt then
-			local tr = util.TraceLine{start=ship:GetPos(),endpos=data.ent:GetPos(),filter={ship,data.ent},mask=MASK_BLOCKLOS_AND_NPCS}
-			if !tr.Hit then
-				draw_obj("*",data.color,data.ent:GetPos(),data.ent:GetClass()=="micro_ship" and data.ent:GetAngles())
-				continue
+	if self.data then
+		for i,data in pairs(self.data) do
+			if IsValid(data.ent) and !hurt then
+				local tr = util.TraceLine{start=ship:GetPos(),endpos=data.ent:GetPos(),filter={ship,data.ent},mask=MASK_BLOCKLOS_AND_NPCS}
+				if !tr.Hit then
+					draw_obj("*",data.color,data.ent:GetPos(),data.ent:GetClass()=="micro_ship" and data.ent:GetAngles())
+					continue
+				end
 			end
+			
+			draw_obj(data.r,data.color,data.pos)
 		end
-		
-		draw_obj(data.r,data.color,data.pos)
 	end
 end

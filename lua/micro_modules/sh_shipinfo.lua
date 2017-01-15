@@ -119,15 +119,13 @@ if SERVER then
 		health_panel.ship = ship_ent
 		ship_ent.health_ent = health_panel
 
-		local shop = ents.Create("micro_shop")
+		local shop = ents.Create("micro_comp_shop")
 		if ship_design=="ufo" then
 			shop:SetPos(micro_ship_origin+Vector(-128,0,0))
 		else
 			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
 		end
 		shop:Spawn()
-		shop.ship = ship_ent
-		ship_ent.shop_ent = shop
 
 		local nav = ents.Create("micro_comp_navigator")
 		if ship_design=="ufo" then
@@ -150,13 +148,6 @@ if SERVER then
 		spk:Spawn()
 		spk:Setup("npc/combine_gunship/dropship_engine_near_loop1.wav",80)
 		ship_ent.speaker_engine = spk
-
-		--ship_ent.sound_strafe = CreateSound(hull,"ambient/gas/steam_loop1.wav")
-		--ship_ent.sound_strafe:Play()
-
-
-		--PrintTable(hull:GetMaterials())
-		
 	end
 
 	hook.easy("InitPostEntity",function()

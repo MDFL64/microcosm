@@ -39,8 +39,6 @@ function ENT:Use(activator, caller, useType, value)
 	end
 end
 
-local mat_seethrough = Material("editor/wireframe")
-
 function ENT:Draw()
 	local is_controlling = LocalPlayer().proxyctrls_ent == self
 

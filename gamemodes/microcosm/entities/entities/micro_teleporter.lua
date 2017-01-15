@@ -105,21 +105,24 @@ function ENT:Draw() -- i thinking this is how make little screen.  maybe make TE
 end
 
 function ENT:Use(ply)
-  local hurt = IsComponentHurt(self)
-  if not hurt then
-    --local origin_ent = pairs(ents.FindByName("micro_ship_*"))
-    --local micro_ship_origin = origin_ent:GetPos()
-    --local micro_ship_angles = origin_ent:GetAngles()
-    --local ship = Entity(MICRO_SHIP_ID or -1)
-    for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
-      local micro_ship_origin = origin_ent:GetPos()
-      --print(ship)
-      print(micro_ship_origin)
-      --print(micro_ship_angles)
-      ---------------ply:SetPos(micro_ship_origin)
-      --ply:SetAngles(micro_ship_angles)
-    end
-  end
+	local hurt = IsComponentHurt(self)
+	if not hurt then
+    	--local origin_ent = pairs(ents.FindByName("micro_ship_*"))
+    	--local micro_ship_origin = origin_ent:GetPos()
+    	--local micro_ship_angles = origin_ent:GetAngles()
+    	--local ship = Entity(MICRO_SHIP_ID or -1)
+		print( team.GetName( Entity( 1 ):Team() ) )
+		for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
+			local micro_ship_origin = origin_ent:GetPos()
+			--print(ship)
+			print(micro_ship_origin)
+			--if i != ply:Get
+			--print(micro_ship_angles)
+		
+			---------------ply:SetPos(micro_ship_origin)
+			--ply:SetAngles(micro_ship_angles)
+		end
+	end
 end
 
 

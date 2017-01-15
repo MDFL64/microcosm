@@ -91,15 +91,34 @@ function ENT:drawScreen(ship,broken)
 
 	surface.SetDrawColor(Color(0,0,0))
 	
+	local function startStencil()
+		render.SetStencilEnable(true)
+		render.SetStencilReferenceValue(1)
+		render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_ALWAYS)
+		render.SetStencilPassOperation(STENCILOPERATION_REPLACE)
+		render.SetStencilFailOperation(STENCILOPERATION_ZERO)
+		render.SetStencilZFailOperation(STENCILOPERATION_ZERO)
+	end
+
+
 	if self.ComponentHideName then
+		startStencil()
 		surface.DrawRect( 3, 3, width-6, height-6)
 	else
 		surface.DrawRect( 3, 3, width-6, 35)
 		draw.SimpleText(self:GetComponentName(),"micro_big",width/2,20,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		startStencil()
 		surface.DrawRect( 3, 41, width-6, height-44)
 	end
 
+	render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
+	render.SetStencilPassOperation(STENCILOPERATION_KEEP)
+	render.SetStencilFailOperation(STENCILOPERATION_KEEP)
+	render.SetStencilZFailOperation(STENCILOPERATION_KEEP)
+
 	self:drawInfo(ship,broken)
+
+	render.SetStencilEnable(false)
 
 	if broken then
 		for i=1,20 do

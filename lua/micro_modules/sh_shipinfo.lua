@@ -129,7 +129,7 @@ if SERVER then
 		shop.ship = ship_ent
 		ship_ent.shop_ent = shop
 
-		local nav = ents.Create("micro_nav")
+		local nav = ents.Create("micro_comp_navigator")
 		if ship_design=="ufo" then
 			nav:SetPos(micro_ship_origin+Vector(-198,0,-35))
 			nav:SetAngles(Angle(-70,180,0))
@@ -138,7 +138,6 @@ if SERVER then
 			nav:SetAngles(Angle(-70,0,0))
 		end
 		nav:Spawn()
-		nav.ship = ship_ent
 
 		local spk = ents.Create("micro_speaker")
 		spk:SetPos(micro_ship_origin+Vector(0,0,-100))

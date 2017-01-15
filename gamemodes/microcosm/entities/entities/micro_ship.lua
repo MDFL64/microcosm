@@ -197,7 +197,7 @@ function ENT:OnTakeDamage(dmg)
 
 	if IsValid(attacker) and damage_whitelist[attacker:GetClass()] then
 		local pos = self:WorldToLocal(dmg:GetDamagePosition())
-		sound.Play(table.Random(sounds_impact),self:GetInternalOrigin()+pos/MICRO_SCALE)--,75,100,1)
+		sound.Play(table.Random(sounds_impact),self.info.origin+pos/MICRO_SCALE)--,75,100,1)
 		self.health_ent:ApplyDamage(dmg:GetDamage())
 	end
 end
@@ -224,6 +224,6 @@ function ENT:UnHook()
 			end
 		end
 		self.hook_ents = {}
-		sound.Play(sound_unhook,self:GetInternalOrigin(),100,100,1)
+		sound.Play(sound_unhook,self.info.origin,100,100,1)
 	end
 end

@@ -15,7 +15,7 @@ function ENT:GetComponentName()
 	return "Helm Console"
 end
 
-function ENT:DrawScreen(ship,broken)
+function ENT:drawInfo(ship,broken)
 	local throttle = ship:GetThrottle()
 	local ship_angs = ship:GetAngles()
 
@@ -27,7 +27,7 @@ function ENT:DrawScreen(ship,broken)
 	local function drawDir(ang,letter)
 		ang = math.NormalizeAngle(ang+180)
 		if ang<60 and ang>-60 then
-			draw.SimpleText(letter,"DermaLarge",108+ang*.65,40,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+			draw.SimpleText(letter,"micro_big",108+ang*.65,39,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		end
 	end
 
@@ -37,7 +37,11 @@ function ENT:DrawScreen(ship,broken)
 	drawDir(ship_angs.y-90,"W")
 
 	surface.SetDrawColor(Color( 255, 0, 0))
-	surface.DrawRect(16, 75, 28, -49*throttle )
+	if throttle>0 then
+		surface.DrawRect(16, 75-49*throttle, 28, math.ceil(49*throttle) )
+	else
+		surface.DrawRect(16, 75, 28, -49*throttle )
+	end
 
 	surface.SetDrawColor(Color( 0, 255, 0))
 	surface.DrawRect(172, 74+49*(ship_angs.p/90), 28, 3 )
@@ -49,7 +53,7 @@ function ENT:DrawScreen(ship,broken)
 	surface.DrawRect(171, 75, 30, 1 )
 
 	if ship:GetIsHome() then
-		draw.SimpleText(">DOCKED<","DermaDefault",108,70,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText(">DOCKED<","micro_shadow",108,70,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 	end
 
 	if ship:GetIsHooked() then
@@ -57,53 +61,45 @@ function ENT:DrawScreen(ship,broken)
 	end
 end
 
-function ENT:Use(activator, caller, useType, value)
-	if not IsValid(self.controller) then
-		caller:ProxyControls(self)
-		self.controller = caller
-	else
-		self:EmitSound("buttons/button11.wav")
-	end
-end
-
-function ENT:sendControls(buttons,buttons_pressed,x,y)
+function ENT:sendControls(mv)-- (buttons,buttons_pressed,x,y)
 
 	local ship_info = self:GetShipInfo()
 
 	if not IsValid(ship_info.entity) or self:IsBroken() then return end
 
-	if bit.band(buttons,IN_FORWARD)!=0 then
+	if mv:KeyDown(IN_FORWARD) then
 		ship_info.entity.ctrl_v = 1
-	elseif bit.band(buttons,IN_BACK)!=0 then
+	elseif mv:KeyDown(IN_BACK) then
 		ship_info.entity.ctrl_v = -1        
 	else
 		ship_info.entity.ctrl_v = 0
 	end
 
-	if bit.band(buttons,IN_MOVELEFT)!=0 then
+	if mv:KeyDown(IN_MOVELEFT) then
 		ship_info.entity.ctrl_h = 1
-	elseif bit.band(buttons,IN_MOVERIGHT)!=0 then
+	elseif mv:KeyDown(IN_MOVERIGHT) then
 		ship_info.entity.ctrl_h = -1        
 	else
 		ship_info.entity.ctrl_h = 0
 	end
 
-	ship_info.entity.ctrl_y = math.Clamp(-x/50,-1,1)
-	ship_info.entity.ctrl_p = math.Clamp(y/50,-1,1)
+	local x = 0
+	ship_info.entity.ctrl_y = math.Clamp(mv:GetSideSpeed()/50,-1,1)
+	ship_info.entity.ctrl_p = math.Clamp(mv:GetUpSpeed()/50,-1,1)
 
-	if bit.band(buttons,IN_JUMP)!=0 then
+	if mv:KeyDown(IN_JUMP) then
 		ship_info.entity:SetThrottle(0)
 	end
 
-	if bit.band(buttons,IN_SPEED)!=0 then
+	if mv:KeyDown(IN_SPEED) then
 		ship_info.entity.ctrl_t = 1
-	elseif bit.band(buttons,IN_DUCK)!=0 then
+	elseif mv:KeyDown(IN_DUCK) then
 		ship_info.entity.ctrl_t = -1
 	else
 		ship_info.entity.ctrl_t = 0
 	end
 
-	if bit.band(buttons,IN_RELOAD)!=0 then
+	if mv:KeyDown(IN_RELOAD) then
 		ship_info.entity:UnHook()
 	end
 end
@@ -123,9 +119,7 @@ end
 
 function ENT:Think()
 	
-	local broken = self:IsBroken()
-
-	if SERVER and broken then
+	if SERVER and self:IsBroken() then
 		local ship_info = self:GetShipInfo()
 
 		ship_info.entity.ctrl_v = math.random()*2-1

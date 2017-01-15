@@ -1,5 +1,15 @@
 include( 'shared.lua' )
 
+surface.CreateFont( "micro_big", {
+	font = "Verdana",
+	size = 32,
+})
+
+surface.CreateFont( "micro_med", {
+	font = "Verdana",
+	size = 24,
+})
+
 surface.CreateFont( "micro_shadow", {
 	font = "Verdana",
 	size = 16,
@@ -189,10 +199,10 @@ hook.Add("HUDPaint","micro_hud",function()
 		surface.SetDrawColor(Color( 0, 0, 0))
 		surface.DrawRect(0, 0, ScrW(), ScrH())
 		draw.SimpleText("You will respawn shortly.","DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-	elseif IsValid(MICRO_CONTROLLING) then
-		if MICRO_CONTROLLING.controlHUD then
-			MICRO_CONTROLLING:controlHUD()
-		end
+	--elseif IsValid(MICRO_CONTROLLING) then
+	--	if MICRO_CONTROLLING.controlHUD then
+	--		MICRO_CONTROLLING:controlHUD()
+	--	end
 	else
 		local tr = LocalPlayer():GetEyeTrace()
 		if tr.Fraction < .003 and IsValid(tr.Entity) and tr.Entity.GetMicroHudText then

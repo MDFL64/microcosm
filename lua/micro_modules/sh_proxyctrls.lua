@@ -1,129 +1,87 @@
-local micro_controlled_ent
-
 if SERVER then
-	util.AddNetworkString("micro_enablecontrol")
+	util.AddNetworkString("micro_proxyctrls")
 
 	local PLAYER = FindMetaTable("Player")
 	function PLAYER:ProxyControls(ent)
-		self.controlled_ent = ent
-		--self.control_last_buttons = IN_USE
-		net.Start("micro_enablecontrol")
-		net.WriteEntity(ent or NULL)
+		self.proxyctrls_ent = ent
+		self.proxyctrls_lastbuttons = IN_USE
+		net.Start("micro_proxyctrls")
+		net.WriteEntity(ent)
 		net.Send(self)
 	end
 else
-	--local micro_controlled_ent
 	local micro_last_eye = Angle(0,0,0)
 
-	net.Receive("micro_enablecontrol",function()
-		micro_controlled_ent = net.ReadEntity()
-		if micro_controlled_ent:IsWorld() then print("AGGGH") micro_controlled_ent = nil end
+	net.Receive("micro_proxyctrls",function()
+		local ent = net.ReadEntity()
+		LocalPlayer().proxyctrls_ent = ent
+		LocalPlayer().proxyctrls_eye = LocalPlayer():EyeAngles()
 	end)
 end
 
-hook.easy("FinishMove",function(ply,mv)
-	if SERVER then
-		if !IsValid(ply.controlled_ent) then return end
-	else
-		if !IsValid(micro_controlled_ent) then return end
-	end
+hook.easy("CreateMove",function(cmd)
+	local ply = LocalPlayer()
+	if !IsValid(ply.proxyctrls_ent) then return end
 
-	return true
+	local unlocked = cmd:KeyDown(IN_WALK) or !ply.proxyctrls_ent.ControlEyeLock
+
+	if unlocked then
+		ply.proxyctrls_eye = cmd:GetViewAngles()
+		cmd:SetMouseX(0)
+		cmd:SetMouseY(0)
+	else
+		cmd:SetViewAngles(ply.proxyctrls_eye)
+	end
 end)
 
---local PLAYER = FindMetaTable("Player")
+hook.easy("SetupMove",function(ply,mv,cmd)
+	if !IsValid(ply.proxyctrls_ent) then return end
 
--- Control system, needs to be refactored later.
---if SERVER then
-	--[[util.AddNetworkString("micro_enablecontrol")
-	util.AddNetworkString("micro_controls")
+	if SERVER then
+		mv:SetOldButtons(ply.proxyctrls_lastbuttons)
 
-	function PLAYER:ProxyControls(ent)
-		self.controlled_ent = ent
-		self.control_last_buttons = IN_USE
-		net.Start("micro_enablecontrol")
-		net.WriteEntity(ent or NULL)
-		net.Send(self)
-	end
+		local ent_okay = IsValid(ply.proxyctrls_ent) and isfunction(ply.proxyctrls_ent.sendControls)
 
-	net.Receive("micro_controls",function(_,ply)
-
-
-		local buttons = net.ReadUInt(32)
-
-		local bad_controlled_ent = !IsValid(ply.controlled_ent) or !isfunction(ply.controlled_ent.sendControls)
-
-		-- really shitty solution, make user release USE before they can press it to exit.
-		--[[if bit.band(buttons,IN_USE)==0 and not ply.control_ready_exit then
-			ply.control_ready_exit=true
-		end
-		local buttons_pressed = bit.band(bit.bxor(ply.control_last_buttons,buttons),buttons)
-
-		if
+		if 
 			!ply:Alive() or
-			bad_controlled_ent or
-			ply:GetPos():DistToSqr(ply.controlled_ent:GetPos())>150^2 or
-			bit.band(buttons_pressed,IN_USE)!=0
+			!ent_okay or
+			ply:GetPos():DistToSqr(ply.proxyctrls_ent:GetPos())>150^2 or
+			mv:KeyPressed(IN_USE)
 		then
-			net.Start("micro_enablecontrol")
-			net.WriteEntity(nil)
-			net.Send(ply)
 
-			if !bad_controlled_ent then
-				ply.controlled_ent:stopControl()
-				ply.controlled_ent = nil
+			if ent_okay then
+				ply.proxyctrls_ent:stopControl()
 			end
+
+			ply:ProxyControls()
 		else
-			if ply.controlled_ent.ControlEyeLock then
-				local x = net.ReadInt(16)
-				local y = net.ReadInt(16)
-				ply.controlled_ent:sendControls(buttons,buttons_pressed,x,y)
-			else
-				local angs = ply:EyeAngles()
-				ply.controlled_ent:sendControls(buttons,buttons_pressed,angs)
-			end
+			mv:SetSideSpeed(-cmd:GetMouseX())
+			mv:SetUpSpeed(cmd:GetMouseY())
 
-			ply.control_last_buttons = buttons
+			ply.proxyctrls_ent:sendControls(mv)
 		end
-	end)
-else
-	MICRO_CONTROLLING = MICRO_CONTROLLING
-	MICRO_LAST_EYE = MICRO_LAST_EYE or Angle(0,0,0)
 
-	net.Receive("micro_enablecontrol",function()
-		MICRO_CONTROLLING = net.ReadEntity()
-		if MICRO_CONTROLLING:IsWorld() then MICRO_CONTROLLING = nil end
-	end)
+		ply.proxyctrls_lastbuttons = mv:GetButtons()
+	end
 
-	function GM:CreateMove(cmd)
-		if IsValid(MICRO_CONTROLLING) then
-			if MICRO_CONTROLLING.ControlEyeLock then
-				local angs_unlocked = cmd:KeyDown(IN_WALK)
-				
-				net.Start("micro_controls")
-				net.WriteUInt(cmd:GetButtons(),32)
-				net.WriteInt(angs_unlocked and 0 or cmd:GetMouseX(),16)
-				net.WriteInt(angs_unlocked and 0 or cmd:GetMouseY(),16)
-				net.SendToServer()
-				
-				cmd:ClearButtons()
-				cmd:ClearMovement()
+	--cmd:ClearButtons()
 
-				if angs_unlocked then
-					MICRO_LAST_EYE = cmd:GetViewAngles()
-				else
-					cmd:SetViewAngles(MICRO_LAST_EYE)
-				end
-			else
-				net.Start("micro_controls")
-				net.WriteUInt(cmd:GetButtons(),32)
-				net.SendToServer()
+	mv:SetOldButtons(0)
+	mv:SetButtons(0)
+	mv:SetForwardSpeed(0)
+	mv:SetSideSpeed(0)
+	mv:SetUpSpeed(0)
+	--mv:SetVelocity(Vector(0,0,0))
+end)
 
-				cmd:ClearButtons()
-				cmd:ClearMovement()
-			end
-		else
-			MICRO_LAST_EYE = cmd:GetViewAngles()
+hook.easy("PlayerUse",function(ply)
+	if IsValid(ply.proxyctrls_ent) then return false end
+end)
+
+hook.easy("CalcView",function(ply, pos, angles, fov)
+	if IsValid(ply.proxyctrls_ent) then
+		if ply.proxyctrls_ent.controlView then
+			return ply.proxyctrls_ent:controlView(pos,angles,fov)
 		end
 	end
-end]]
+end)

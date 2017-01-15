@@ -1,4 +1,3 @@
-[![Stories in Ready](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
 # microcosm
 EARLY-ACCESS PRE-ALPHA PROTOTYPE
 
@@ -20,6 +19,8 @@ Only submit a PR if it fixes a bug, exploit, or balancing issue.
 I swear I will come back and work on this soon but I REALLY need a break for a few days.
 
 Feel free to bitch about the horrible code but I'm not really capable of giving a damn right now.
+
+Waffle.io: [![Stories in Ready](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
 
 ## Credits
 Parakeet/birdbrainswagtrain/Adam Coggeshall shitcoded this thing in about two weeks.

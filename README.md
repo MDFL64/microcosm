@@ -11,7 +11,8 @@ A gamemode about spaceships on rp_downtown? Your guess is as good as mine.
 
 ## Development
 
-[![Discord Badge](https://img.shields.io/badge/Developer_Discord-Join-blue.svg)](https://discord.gg/Gzg3Wjx) [![Waffle Badge](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
+[![Discord Badge](https://img.shields.io/badge/Developer_Discord-Join-blue.svg)](https://discord.gg/Gzg3Wjx)
+[![Waffle Badge](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
 
 Currently paused. In great need of a refactor. No new features being accepted.
 

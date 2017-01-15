@@ -163,13 +163,13 @@ local items = {
 
 if SERVER then
 	-- This is shitty.
-	
+
 	concommand.Add("micro_shop_buy",function(ply,_,args)
 		local shop_ent = Entity(tonumber(args[1]) or 0)
 
 		local n = tonumber(args[2])
 
-		if !ply:Alive() or !isnumber(n) or items[n]==nil or !IsValid(shop_ent) or shop_ent:GetClass()!="micro_comp_shop" then return end
+		if !ply:Alive() or !isnumber(n) or items[n]==nil or !IsValid(shop_ent) or shop_ent:GetClass()!="micro_comp_shop" or shop_ent:IsBroken() then return end
 
 		local ship = shop_ent:GetShipInfo().entity
 

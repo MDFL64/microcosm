@@ -11,6 +11,8 @@ ENT.Ammo1Max = 200
 ENT.Ammo2Max = 2
 ENT.Ammo3Max = 8
 
+ENT.drawScreenToHud = true
+
 local sound_fire = Sound("weapons/ar2/fire1.wav")
 local sound_fire_hook = Sound("weapons/crossbow/fire1.wav")
 local sound_fire_hook_nope = Sound("buttons/button2.wav")
@@ -224,7 +226,7 @@ function ENT:drawInfo(ship,broken)
 	local selected = self:GetSelectedAmmo()
 	if broken then selected = math.random(3) end
 
-	draw.SimpleText("->","micro_med",8,32+30*selected,color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+	draw.SimpleText("->","micro_med",12,32+30*selected,color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
 
 	draw.SimpleText("Standard Shells: "..(broken and math.random(self.Ammo1Max) or self:GetAmmo1()).." / "..self.Ammo1Max,"micro_med",40,62,Color(255,100,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
 	

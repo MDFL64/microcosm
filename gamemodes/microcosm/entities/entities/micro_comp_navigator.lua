@@ -111,9 +111,11 @@ function ENT:drawInfo(ship,broken)
 		end
 	end
 
-	draw_obj("*",ship:GetColor(),ship:GetPos(),ship:GetAngles())
-	if self.home_pos then
-		draw_obj("#",ship:GetColor(),self.home_pos)
+	if !self:IsBroken() then
+		draw_obj("*",ship:GetColor(),ship:GetPos(),ship:GetAngles())
+		if self.home_pos then
+			draw_obj("#",ship:GetColor(),self.home_pos)
+		end
 	end
 
 	if self.data then

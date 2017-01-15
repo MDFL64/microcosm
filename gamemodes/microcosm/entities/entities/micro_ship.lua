@@ -41,11 +41,12 @@ function ENT:Initialize()
 
 		self:SetHealth(SHIP_HEALTH)
 		self:SetMaxHealth(SHIP_HEALTH)
-	else
-		MICRO_SHIP_INFO[self:GetShipID()].entity = self
 	end
 
-	--self:SetRenderMode(RENDERMODE_TRANSALPHA)
+	MICRO_SHIP_INFO[self:GetShipID()].entity = self
+	self.info = MICRO_SHIP_INFO[self:GetShipID()]
+	-- TODO, check hulls on init!
+
 	self:DrawShadow(false)
 end
 
@@ -198,7 +199,7 @@ function ENT:OnTakeDamage(dmg)
 	if IsValid(attacker) and damage_whitelist[attacker:GetClass()] then
 		local pos = self:WorldToLocal(dmg:GetDamagePosition())
 		sound.Play(table.Random(sounds_impact),self.info.origin+pos/MICRO_SCALE)--,75,100,1)
-		self.health_ent:ApplyDamage(dmg:GetDamage())
+		self:ApplyDamage(dmg:GetDamage())
 	end
 end
 
@@ -211,7 +212,7 @@ function ENT:PhysicsCollide(data, phys)
 			ply:ViewPunch( Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*(data.Speed/2) )
 		end
 
-		self.health_ent:ApplyDamage(data.Speed)
+		self:ApplyDamage(data.Speed)
 	end
 end
 
@@ -225,5 +226,68 @@ function ENT:UnHook()
 		end
 		self.hook_ents = {}
 		sound.Play(sound_unhook,self.info.origin,100,100,1)
+	end
+end
+
+if SERVER then
+	local debug_class
+
+	function ENT:ApplyDamage(dmg,iter)
+		iter = iter or 1
+
+		local damaged_ent
+		
+		if debug_class then
+			for ent,_ in pairs(self.info.components) do
+				if ent:GetClass()==debug_class then
+					damaged_ent = ent
+					break
+				end
+			end
+		else
+			local r = math.random()
+			if r<(self:Health()/self:GetMaxHealth()) then
+				damaged_ent = self
+			else
+				local dmg_table = {}
+
+				for ent,_ in pairs(self.info.components) do
+					table.insert(dmg_table,ent)
+				end
+
+				for i,ply in pairs(player.GetAll()) do
+					if ply:GetShipInfo()==self.info then
+						table.insert(dmg_table,ply)
+					end
+				end
+
+				damaged_ent = table.Random(dmg_table)
+			end
+		end
+
+		if IsValid(damaged_ent) then
+			local hp = damaged_ent:Health()
+			if damaged_ent:IsPlayer() then
+				damaged_ent:TakeDamage(dmg)
+				--[[if hp>0 then
+					damaged_ent:EmitSound("vo/npc/male01/pain0"..math.random(9)..".wav")
+				end]]
+			else
+				damaged_ent:SetHealth(math.max(hp - dmg,0))
+			end
+
+			dmg = dmg-hp
+		end
+
+		if dmg>0 and iter<3 then
+			self:ApplyDamage(dmg,iter+1)
+		end
+	end
+
+	function ENT:RepairAll()
+		self:SetHealth(self:GetMaxHealth())
+		for ent,_ in pairs(self.info.components) do
+			ent:SetHealth(ent:GetMaxHealth())
+		end
 	end
 end

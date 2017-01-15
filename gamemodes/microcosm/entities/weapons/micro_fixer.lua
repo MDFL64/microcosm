@@ -38,9 +38,20 @@ function SWEP:PrimaryAttack()
 
 	local tr = self.Owner:GetEyeTrace()
 
-	if tr.Fraction > .003 or !IsValid(tr.Entity) or !tr.Entity.GetMicroHealth or !tr.Entity.MaxMicroHealth or tr.Entity:GetMicroHealth()>=tr.Entity.MaxMicroHealth then return end
+	local ent = tr.Entity
 
-	tr.Entity:SetMicroHealth(tr.Entity:GetMicroHealth()+1)
+	if tr.Fraction > .003 or !IsValid(ent) then return end
+
+	if ent:GetClass():sub(1,10) != "micro_comp" then
+		if ent:GetClass()=="micro_hull" or ent:GetClass()=="micro_subhull" then
+			ent = self:GetShipInfo().entity
+			if !IsValid(ent) then return end
+		else return end
+	end
+
+	if ent:Health()>=ent:GetMaxHealth() then return end
+
+	ent:SetHealth(ent:Health()+1)
 
 	sound.Play("weapons/physcannon/superphys_small_zap1.wav",tr.HitPos,70,120,1)
 

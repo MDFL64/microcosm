@@ -107,21 +107,19 @@ if SERVER then
 		ship_ent.comms_ent = comms_panel
 		ship_ent.comms_ent.team = i
 
-		local health_panel = ents.Create("micro_health")
+		local health_panel = ents.Create("micro_comp_health")
 		if ship_design=="ufo" then
 			health_panel:SetPos(micro_ship_origin+Vector(0,-180,0))
-			health_panel:SetAngles(Angle(90,90,0))
+			health_panel:SetAngles(Angle(-90,-90,0))
 		else
 			health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
-			health_panel:SetAngles(Angle(90,-90,0))
+			health_panel:SetAngles(Angle(-90,90,0))
 		end
 		health_panel:Spawn()
-		health_panel.ship = ship_ent
-		ship_ent.health_ent = health_panel
 
 		local shop = ents.Create("micro_comp_shop")
 		if ship_design=="ufo" then
-			shop:SetPos(micro_ship_origin+Vector(-128,0,0))
+			shop:SetPos(micro_ship_origin+Vector(-150,0,0))
 		else
 			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
 		end
@@ -129,8 +127,8 @@ if SERVER then
 
 		local nav = ents.Create("micro_comp_navigator")
 		if ship_design=="ufo" then
-			nav:SetPos(micro_ship_origin+Vector(-198,0,-35))
-			nav:SetAngles(Angle(-70,180,0))
+			nav:SetPos(micro_ship_origin+Vector(50,-60,30))
+			nav:SetAngles(Angle(-90,0,0))
 		else
 			nav:SetPos(micro_ship_origin+Vector(110,-50,110))
 			nav:SetAngles(Angle(-70,0,0))
@@ -173,6 +171,7 @@ if SERVER then
 				doTrace(Vector(0,0,-1)).z
 			)
 			new_ship_info.origin = (new_ship_info.mins+new_ship_info.maxs)/2
+			new_ship_info.components = {}
 
 			local home = ents.Create("prop_physics")
 			home:SetPos(MICRO_HOME_SPOTS[i][1])
@@ -182,6 +181,8 @@ if SERVER then
 			home:Spawn()
 			home:GetPhysicsObject():EnableMotion(false)
 
+			table.insert(MICRO_SHIP_INFO,new_ship_info)
+
 			-- Ship Ent
 			local ship_ent = ents.Create("micro_ship")
 			ship_ent:SetPos(home:GetPos()+Vector(0,0,25))
@@ -190,12 +191,6 @@ if SERVER then
 			ship_ent:SetColor(MICRO_TEAM_COLORS[i])
 			ship_ent:Spawn()
 			ship_ent.home = home
-			ship_ent.info = new_ship_info
-
-			new_ship_info.entity = ship_ent
-
-			--table.insert(MICRO_SHIP_ENTS,ship_ent)
-			table.insert(MICRO_SHIP_INFO,new_ship_info)
 		end
 
 		-- Spawn interiors only after all info is actually ready
@@ -232,6 +227,7 @@ else
 			MICRO_SHIP_INFO[i].mins = net.ReadVector()
 			MICRO_SHIP_INFO[i].maxs = net.ReadVector()
 			MICRO_SHIP_INFO[i].origin = (MICRO_SHIP_INFO[i].mins+MICRO_SHIP_INFO[i].maxs)/2
+			MICRO_SHIP_INFO[i].components = {}
 		end
 	end)
 end

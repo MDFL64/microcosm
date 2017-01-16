@@ -177,3 +177,9 @@ function GM:PlayerSay( talker, text, teamOnly )
 	end
 	return text
 end
+
+hook.easy("EntityTakeDamage",function(ent,dmg)
+	if ent:IsPlayer() then
+		ent:EmitSound("vo/npc/male01/pain0"..math.random(9)..".wav")
+	end
+end)

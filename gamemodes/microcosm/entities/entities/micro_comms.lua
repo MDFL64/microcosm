@@ -97,6 +97,7 @@ if SERVER then
 	end
 
 	function BroadcastComms(...)
+		if true then return end
 		for _,ent in pairs(ents.FindByClass("micro_comms")) do
 			if IsComponentHurt(ent) then continue end
 			ent:EmitSound(sound_important)
@@ -161,6 +162,7 @@ if SERVER then
 	--local broken_override = false
 
 	function ENT:Think()
+		if true then return end
 		local hurt = IsComponentHurt(self)
 		if hurt and CurTime()>self.next_broken_message then
 			self.next_broken_message=CurTime()+math.random(1,5)

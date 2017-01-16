@@ -269,9 +269,6 @@ if SERVER then
 			local hp = damaged_ent:Health()
 			if damaged_ent:IsPlayer() then
 				damaged_ent:TakeDamage(dmg)
-				--[[if hp>0 then
-					damaged_ent:EmitSound("vo/npc/male01/pain0"..math.random(9)..".wav")
-				end]]
 			else
 				damaged_ent:SetHealth(math.max(hp - dmg,0))
 			end

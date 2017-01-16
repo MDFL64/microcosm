@@ -208,8 +208,10 @@ function ENT:PhysicsCollide(data, phys)
 		local pos = self:WorldToLocal(data.HitPos)
 		sound.Play(sound_crash,self.info.origin+pos/MICRO_SCALE,100,100,1)
 
-		for i,ply in pairs(team.GetPlayers(self.team_id)) do
-			ply:ViewPunch( Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*(data.Speed/2) )
+		for i,ply in pairs(player.GetAll()) do
+			if ply:GetShipInfo()==self.info then
+				ply:ViewPunch( Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*(data.Speed/2) )
+			end
 		end
 
 		self:ApplyDamage(data.Speed)
@@ -285,6 +287,21 @@ if SERVER then
 		self:SetHealth(self:GetMaxHealth())
 		for ent,_ in pairs(self.info.components) do
 			ent:SetHealth(ent:GetMaxHealth())
+		end
+		for i,ply in pairs(player.GetAll()) do
+			if ply:GetShipInfo()==self.info and ply:Alive() then
+				ply:SetHealth(ply:GetMaxHealth())
+			end
+		end
+	end
+
+	function ENT:ReloadGuns()
+		for ent,_ in pairs(self.info.components) do
+			if ent:GetClass()=="micro_comp_cannon" then
+				ent:SetAmmo1(ent.Ammo1Max)
+				ent:SetAmmo2(ent.Ammo2Max)
+				ent:SetAmmo3(ent.Ammo3Max)
+			end
 		end
 	end
 end

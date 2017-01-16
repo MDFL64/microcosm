@@ -101,10 +101,7 @@ local items = {
 		cost=50,
 		pv="models/props_c17/tools_wrench01a.mdl",
 		func = function(ship)
-			ship.health_ent:RepairAll()
-			for k,v in pairs(team.GetPlayers(ship.team_id)) do
-				v:SetHealth(v:GetMaxHealth())
-			end
+			ship:RepairAll()
 		end
 	},
 	{
@@ -113,15 +110,7 @@ local items = {
 		cost=50,
 		pv="models/items/ammocrate_ar2.mdl",
 		func = function(ship)
-			local function full_reload(cannon)
-				if !IsValid(cannon) then return end
-				cannon:SetAmmo1(cannon.Ammo1Max)
-				cannon:SetAmmo2(cannon.Ammo2Max)
-				cannon:SetAmmo3(cannon.Ammo3Max)
-			end
-
-			full_reload(ship.cannon_1)
-			full_reload(ship.cannon_2)
+			ship:ReloadGuns()
 		end
 	},
 	{

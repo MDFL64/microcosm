@@ -230,6 +230,61 @@ else
 			MICRO_SHIP_INFO[i].components = {}
 		end
 	end)
+
+	hook.easy("PreRender",function()
+		local ship_info = LocalPlayer():GetShipInfo()
+
+		if ship_info and IsValid(ship_info.entity) then
+
+			local origin = ship_info.origin
+
+			local real_pos = ship_info.entity:GetPos()
+			local real_ang = ship_info.entity:GetAngles()
+
+			local eye_pos = LocalPlayer():EyePos()
+			local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()
+
+			local view = hook.Call("CalcView",GAMEMODE, LocalPlayer())
+			if view then
+				eye_pos = view.origin or eye_pos
+			end
+
+			local cam_pos, cam_ang = LocalToWorld((eye_pos-origin)*MICRO_SCALE,eye_angs,real_pos,real_ang)
+
+			MICRO_DRAW_EXTERNAL = true
+			render.SuppressEngineLighting(false)
+			render.RenderView{
+				w=ScrW(),
+				h=ScrH(),
+				x=0,
+				y=0,
+				origin=cam_pos,
+				angles=cam_ang,
+				znear=0.1
+			}
+			MICRO_DRAW_EXTERNAL = false
+
+			render.SuppressEngineLighting(true)
+
+			render.SetModelLighting(BOX_FRONT, .1,.1,.1)
+			render.SetModelLighting(BOX_BACK, .1,.1,.1)
+			render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
+			render.SetModelLighting(BOX_LEFT, .1,.1,.1)
+			if ship_info.entity:IsBroken() then
+				render.SetModelLighting(BOX_TOP, 1,0,0)
+			else
+				render.SetModelLighting(BOX_TOP, 1,1,1)
+			end
+			render.SetModelLighting(BOX_BOTTOM, .1,.1,.1)
+		else
+			render.SuppressEngineLighting(false)
+		end
+	end)
+
+	-- Failsafe to stop lighting from breaking when a client leaves.
+	hook.easy("ShutDown",function()
+		render.SuppressEngineLighting(false)
+	end)
 end
 
 

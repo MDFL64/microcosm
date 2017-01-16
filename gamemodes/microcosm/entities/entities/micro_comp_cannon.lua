@@ -54,15 +54,14 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:sendControls(mv)
+function ENT:sendControls(key_down,key_pressed,key_released,angs)
 
 	if self:IsBroken() then return end
 
-	local angs = mv:GetAngles()
 	
 	local tr = util.TraceLine{start=self.gun:GetPos(),endpos=self.gun:GetPos()+angs:Forward()*10000,filter=self}
 	
-	if mv:KeyPressed(IN_FORWARD) then
+	if key_pressed(IN_FORWARD) then
 		if self:GetSelectedAmmo()==1 then
 			self:SetSelectedAmmo(3)
 		else
@@ -71,14 +70,14 @@ function ENT:sendControls(mv)
 		sound.Play(sound_select,self.gun:GetPos(),75,150,1)
 	end
 
-	if mv:KeyPressed(IN_BACK) then
+	if key_pressed(IN_BACK) then
 		self:SetSelectedAmmo(self:GetSelectedAmmo()%3+1)
 		sound.Play(sound_select,self.gun:GetPos(),75,150,1)
 	end
 	
 	if tr.Entity:IsWorld() then
 		self.gun:SetAngles(angs)
-		self.fire = mv:KeyDown(IN_ATTACK)
+		self.fire = key_down(IN_ATTACK)
 	else
 		self.fire = false
 	end

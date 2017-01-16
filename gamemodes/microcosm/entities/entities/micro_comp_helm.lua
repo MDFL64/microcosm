@@ -25,6 +25,7 @@ function ENT:drawInfo(ship,broken)
 	surface.DrawOutlinedRect(171,25,30,100) -- pitch
 
 	local function drawDir(ang,letter)
+		if broken then ang=CurTime() end
 		ang = math.NormalizeAngle(ang+180)
 		if ang<60 and ang>-60 then
 			draw.SimpleText(letter,"micro_big",108+ang*.65,39,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
@@ -61,45 +62,45 @@ function ENT:drawInfo(ship,broken)
 	end
 end
 
-function ENT:sendControls(mv)-- (buttons,buttons_pressed,x,y)
+function ENT:sendControls(key_down,key_pressed,key_released,mx,my)-- (buttons,buttons_pressed,x,y)
 
 	local ship_info = self:GetShipInfo()
 
 	if not IsValid(ship_info.entity) or self:IsBroken() then return end
 
-	if mv:KeyDown(IN_FORWARD) then
+	if key_down(IN_FORWARD) then
 		ship_info.entity.ctrl_v = 1
-	elseif mv:KeyDown(IN_BACK) then
+	elseif key_down(IN_BACK) then
 		ship_info.entity.ctrl_v = -1        
 	else
 		ship_info.entity.ctrl_v = 0
 	end
 
-	if mv:KeyDown(IN_MOVELEFT) then
+	if key_down(IN_MOVELEFT) then
 		ship_info.entity.ctrl_h = 1
-	elseif mv:KeyDown(IN_MOVERIGHT) then
+	elseif key_down(IN_MOVERIGHT) then
 		ship_info.entity.ctrl_h = -1        
 	else
 		ship_info.entity.ctrl_h = 0
 	end
 
 	local x = 0
-	ship_info.entity.ctrl_y = math.Clamp(mv:GetSideSpeed()/50,-1,1)
-	ship_info.entity.ctrl_p = math.Clamp(mv:GetUpSpeed()/50,-1,1)
+	ship_info.entity.ctrl_y = math.Clamp(-mx/50,-1,1)
+	ship_info.entity.ctrl_p = math.Clamp(my/50,-1,1)
 
-	if mv:KeyDown(IN_JUMP) then
+	if key_down(IN_JUMP) then
 		ship_info.entity:SetThrottle(0)
 	end
 
-	if mv:KeyDown(IN_SPEED) then
+	if key_down(IN_SPEED) then
 		ship_info.entity.ctrl_t = 1
-	elseif mv:KeyDown(IN_DUCK) then
+	elseif key_down(IN_DUCK) then
 		ship_info.entity.ctrl_t = -1
 	else
 		ship_info.entity.ctrl_t = 0
 	end
 
-	if mv:KeyDown(IN_RELOAD) then
+	if key_down(IN_RELOAD) then
 		ship_info.entity:UnHook()
 	end
 end

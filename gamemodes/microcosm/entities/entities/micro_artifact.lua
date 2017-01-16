@@ -20,19 +20,20 @@ end
 
 if SERVER then
 	function ENT:Think()
-		if true then return end
 
 		local a = self:GetColor().a
 		local phys = self:GetPhysicsObject()
 
 		if a<255 then
 			self:SetColor(Color(255,0,255,a+1))
-			for _,ent in pairs(MICRO_SHIP_ENTS) do
-				local dist = ent:GetPos():Distance(self:GetPos())
+			for _,info in pairs(MICRO_SHIP_INFO) do
+				if !IsValid(info.entity) then continue end
+
+				local dist = info.entity:GetPos():Distance(self:GetPos())
 				if dist<250 then
 					self:FireBullets{
 						Src=self:GetPos(),
-						Dir=ent:GetPos()-self:GetPos(),
+						Dir=info.entity:GetPos()-self:GetPos(),
 						Spread=Vector(.03,.03,.03),
 						Damage=MICRO_ARTIFACT_SPAWN_TIME/6,
 						Tracer=0,
@@ -47,14 +48,22 @@ if SERVER then
 			phys:Wake()
 		else
 			local hit = false
-			for _,ent in pairs(MICRO_SHIP_ENTS) do
-				local dist = ent.home:GetPos():Distance(self:GetPos())
+			for _,info in pairs(MICRO_SHIP_INFO) do
+				if !IsValid(info.entity) then continue end
+
+				local dist = info.entity.home:GetPos():Distance(self:GetPos())
 				if dist<25 then
-					--local xx = constraint.FindConstraintEntity(self,"Rope")
-					--print(xx)
-					if IsValid(constraint.FindConstraintEntity(self,"Rope")) or !ent.shop_ent:AddCash(100) then
+					local shop_ent
+					for comp,_ in pairs(info.components) do
+						if comp:GetClass()=="micro_comp_shop" then
+							shop_ent = comp
+							break
+						end
+					end
+
+					if IsValid(constraint.FindConstraintEntity(self,"Rope")) or !IsValid(shop_ent) or !shop_ent:AddCash(100) then
 						hit = true
-						self:SetColor(ent.home:GetColor())
+						self:SetColor(info.entity:GetColor())
 					else
 						self:Remove()
 					end

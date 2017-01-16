@@ -102,7 +102,7 @@ local function minify(ent)
 end]]
 
 function GM:InitPostEntity()
-<<<<<<< HEAD
+--<<<<<<< HEAD
 	for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 
 		local micro_ship_origin = origin_ent:GetPos()
@@ -121,7 +121,7 @@ function GM:InitPostEntity()
 		local ship_ent = ents.Create("micro_ship")
 		ship_ent:SetPos(home:GetPos()+Vector(0,0,25))
 		ship_ent:SetAngles(home:GetAngles())
-		ship_ent:SetInternalOrigin(micro_ship_origin)
+		--ship_ent:SetInternalOrigin(micro_ship_origin)
 		ship_ent:SetColor(MICRO_TEAM_COLORS[i])
 		ship_ent:Spawn()
 		ship_ent.home = home
@@ -256,8 +256,8 @@ function GM:InitPostEntity()
 		--PrintTable(hull:GetMaterials())
 	end
 
-=======
->>>>>>> unstable
+--=======
+-->>>>>>> unstable
 	for _,v in pairs(ents.FindByClass("prop_door_rotating")) do
 		v:SetKeyValue("returndelay",60*5)
 		v:Fire("unlock")

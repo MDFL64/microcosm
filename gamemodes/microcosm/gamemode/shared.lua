@@ -71,7 +71,7 @@ else
 end
 
 
-<<<<<<< HEAD
+--<<<<<<< HEAD
 MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
  
 MICRO_TEAM_COLORS = {
@@ -98,8 +98,8 @@ end
 --util.PrecacheSound("ambient/fire/fire_small1.wav")
 
 -- no noclip.  UNLESS sv_cheats = 1 :)
-=======
->>>>>>> unstable
+--=======
+-->>>>>>> unstable
 function GM:PlayerNoClip()
 	return cfg_dev:GetBool()
 end

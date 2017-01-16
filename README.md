@@ -1,15 +1,20 @@
 # microcosm
+[![Waffle Badge](https://badge.waffle.io/birdbrainswagtrain/microcosm.png?label=ready&title=Ready)](https://waffle.io/birdbrainswagtrain/microcosm)
+[![Discord Badge](https://img.shields.io/badge/Developer_Discord-Join-blue.svg)](https://discord.gg/Gzg3Wjx)
+[![Facepunch Badge](https://img.shields.io/badge/Facepunch_Thread-Discuss-red.svg)](https://facepunch.com/showthread.php?t=1547623)
+
 EARLY-ACCESS PRE-ALPHA PROTOTYPE
 
 A gamemode about spaceships on rp_downtown? Your guess is as good as mine.
 
-## Instructions
+## Setup Instructions
 - Set the server's workshop collection to this: http://steamcommunity.com/sharedfiles/filedetails/?id=133006390.
 - Set the server's map to micro_downtown_v2.
 - Set the server's gamemode to microcosm.
 - It will either work or it will crash and burn for some unforseen reason, IDK.
 
 ## Development
+
 Currently paused. In great need of a refactor. No new features being accepted.
 
 Forking strongly discouraged.

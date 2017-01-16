@@ -26,6 +26,14 @@ function ENT:Initialize()
 		self:SetHealth(self.ComponentMaxHealth)
 		self:SetMaxHealth(self.ComponentMaxHealth)
 	end
+
+	local comps_table = self:GetShipInfo().components
+	if istable(comps_table) then comps_table[self]=true end
+end
+
+function ENT:OnRemove()
+	local comps_table = self:GetShipInfo().components
+	if istable(comps_table) then comps_table[self]=nil end
 end
 
 function ENT:Use(activator, caller, useType, value)
@@ -39,40 +47,36 @@ function ENT:Use(activator, caller, useType, value)
 	end
 end
 
-local mat_seethrough = Material("editor/wireframe")
-
 function ENT:Draw()
 	local is_controlling = LocalPlayer().proxyctrls_ent == self
 
 	local ship_info = self:GetShipInfo()
 
-	if is_controlling then
-		render.DrawWireframeBox(self:GetPos(), self:GetAngles(), self:OBBMins(), self:OBBMaxs(), ship_info.entity and ship_info.entity:GetColor() or Color(0,0,0) , true)
-	else
-		self:DrawModel()
 
-		local broken = self:IsBroken()
+	self:DrawModel()
 
-		if ship_info and IsValid(ship_info.entity) then
+	local broken = self:IsBroken()
 
-			cam.Start3D2D(self:LocalToWorld(self.ComponentScreenOffset),self:LocalToWorldAngles(self.ComponentScreenRotation), .25 )
-				self:drawScreen(ship_info.entity,broken)
-			cam.End3D2D()
-		end
+	if ship_info and IsValid(ship_info.entity) then
+
+		cam.Start3D2D(self:LocalToWorld(self.ComponentScreenOffset),self:LocalToWorldAngles(self.ComponentScreenRotation), .25 )
+			self:drawScreen(ship_info.entity,broken)
+		cam.End3D2D()
 	end
+
 end
 
 hook.easy("HUDPaint",function()
 	local control_ent = LocalPlayer().proxyctrls_ent
 
-	if IsValid(control_ent) and isfunction(control_ent.drawScreen) then
+	if IsValid(control_ent) and control_ent.drawScreenToHud and isfunction(control_ent.drawScreen) then
 
 		local ship_info = control_ent:GetShipInfo()
 		local broken = control_ent:IsBroken()
 
 		if IsValid(ship_info.entity) then
 			local matrix = Matrix()
-			matrix:Translate(Vector((ScrW()-control_ent.ComponentScreenWidth)/2,ScrH()-control_ent.ComponentScreenHeight,0))
+			matrix:Translate(Vector(ScrW()-control_ent.ComponentScreenWidth,ScrH()-control_ent.ComponentScreenHeight,0))
 			--matrix:Scale(Vector(2,2,2))
 			cam.PushModelMatrix(matrix)
 			control_ent:drawScreen(ship_info.entity,broken)
@@ -91,19 +95,41 @@ function ENT:drawScreen(ship,broken)
 
 	surface.SetDrawColor(Color(0,0,0))
 	
+	local function startStencil()
+		render.SetStencilEnable(true)
+		render.ClearStencil()
+		render.SetStencilReferenceValue(1)
+		render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_ALWAYS)
+		render.SetStencilPassOperation(STENCILOPERATION_REPLACE)
+		render.SetStencilFailOperation(STENCILOPERATION_ZERO)
+		render.SetStencilZFailOperation(STENCILOPERATION_ZERO)
+	end
+
+
 	if self.ComponentHideName then
+		startStencil()
 		surface.DrawRect( 3, 3, width-6, height-6)
 	else
 		surface.DrawRect( 3, 3, width-6, 35)
 		draw.SimpleText(self:GetComponentName(),"micro_big",width/2,20,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		startStencil()
 		surface.DrawRect( 3, 41, width-6, height-44)
 	end
 
+	render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
+	render.SetStencilPassOperation(STENCILOPERATION_KEEP)
+	render.SetStencilFailOperation(STENCILOPERATION_KEEP)
+	render.SetStencilZFailOperation(STENCILOPERATION_KEEP)
+
 	self:drawInfo(ship,broken)
 
+	render.SetStencilEnable(false)
+
 	if broken then
+		local w = self.ComponentScreenWidth
+		local h = self.ComponentScreenHeight
 		for i=1,20 do
-			draw.SimpleText(string.char(math.random(33,126)),"DebugFixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+			draw.SimpleText(string.char(math.random(33,126)),"micro_fixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		end
 	end
 end

@@ -264,14 +264,6 @@ function GM:InitPostEntity()
 	end
 end
 
-
-function GM:SetupPlayerVisibility(ply)
-	local ship_info = ply:GetShipInfo()
-	if ship_info and IsValid(ship_info.entity) then
-		AddOriginToPVS(ship_info.entity:GetPos())
-	end
-end
-
 function GM:ShowHelp(ply)
 	ply:SendLua("MICRO_SHOW_HELP()")
 end
@@ -293,15 +285,7 @@ concommand.Add("micro_jointeam",function(ply,_,args)
 		if (ply:Team()==realteam) then return end
 		ply:SetTeam(realteam)
 
-		--ply:SetShip(MICRO_SHIP_ENTS[team])
 		ply:KillSilent()
-		--hook.Call("PlayerSpawn",GAMEMODE,ply)
-		
-		-- DON'T BITCH AT ME ABOUT SPAGHETTI CODE AND ABOUT
-		-- HOW THIS IS TOO TIGHTLY COUPLED. I KNOW. I'LL FIX IT LATER.
-		if team!=0 then
-			MICRO_SHIP_INFO[team].entity.comms_ent:InitializeText(ply)
-		end
 	end
 end)
 
@@ -333,3 +317,9 @@ function GM:PlayerSay( talker, text, teamOnly )
 	end
 	return text
 end
+
+hook.easy("EntityTakeDamage",function(ent,dmg)
+	if ent:IsPlayer() then
+		ent:EmitSound("vo/npc/male01/pain0"..math.random(9)..".wav")
+	end
+end)

@@ -13,8 +13,12 @@ function ENTITY:GetShipInfo()
 	end
 end
 
+function ENTITY:CheckBroken(health)
+	return health < self:GetMaxHealth()*.3
+end
+
 function ENTITY:IsBroken()
-	return self:Health() < self:GetMaxHealth()*.3
+	return self:CheckBroken(self:Health())
 end
 
 if SERVER then
@@ -94,51 +98,43 @@ if SERVER then
 			cannon:Spawn()
 		end
 			
-		local comms_panel = ents.Create("micro_comms")
+		local comms_panel = ents.Create("micro_comp_comms")
 		if ship_design=="ufo" then
 			comms_panel:SetPos(micro_ship_origin+Vector(0,180,0))
-			comms_panel:SetAngles(Angle(90,-90,0))
+			comms_panel:SetAngles(Angle(-90,90,0))
 		else
 			comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
-			comms_panel:SetAngles(Angle(90,-160,0))
+			comms_panel:SetAngles(Angle(-90,30,0))
 		end
 		comms_panel:Spawn()
-		comms_panel.ship = ship_ent
-		ship_ent.comms_ent = comms_panel
-		ship_ent.comms_ent.team = i
 
-		local health_panel = ents.Create("micro_health")
+		local health_panel = ents.Create("micro_comp_health")
 		if ship_design=="ufo" then
 			health_panel:SetPos(micro_ship_origin+Vector(0,-180,0))
-			health_panel:SetAngles(Angle(90,90,0))
+			health_panel:SetAngles(Angle(-90,-90,0))
 		else
 			health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
-			health_panel:SetAngles(Angle(90,-90,0))
+			health_panel:SetAngles(Angle(-90,90,0))
 		end
 		health_panel:Spawn()
-		health_panel.ship = ship_ent
-		ship_ent.health_ent = health_panel
 
-		local shop = ents.Create("micro_shop")
+		local shop = ents.Create("micro_comp_shop")
 		if ship_design=="ufo" then
-			shop:SetPos(micro_ship_origin+Vector(-128,0,0))
+			shop:SetPos(micro_ship_origin+Vector(-150,0,0))
 		else
 			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
 		end
 		shop:Spawn()
-		shop.ship = ship_ent
-		ship_ent.shop_ent = shop
 
-		local nav = ents.Create("micro_nav")
+		local nav = ents.Create("micro_comp_navigator")
 		if ship_design=="ufo" then
-			nav:SetPos(micro_ship_origin+Vector(-198,0,-35))
-			nav:SetAngles(Angle(-70,180,0))
+			nav:SetPos(micro_ship_origin+Vector(50,-60,30))
+			nav:SetAngles(Angle(-90,0,0))
 		else
 			nav:SetPos(micro_ship_origin+Vector(110,-50,110))
 			nav:SetAngles(Angle(-70,0,0))
 		end
 		nav:Spawn()
-		nav.ship = ship_ent
 
 		local spk = ents.Create("micro_speaker")
 		spk:SetPos(micro_ship_origin+Vector(0,0,-100))
@@ -151,13 +147,6 @@ if SERVER then
 		spk:Spawn()
 		spk:Setup("npc/combine_gunship/dropship_engine_near_loop1.wav",80)
 		ship_ent.speaker_engine = spk
-
-		--ship_ent.sound_strafe = CreateSound(hull,"ambient/gas/steam_loop1.wav")
-		--ship_ent.sound_strafe:Play()
-
-
-		--PrintTable(hull:GetMaterials())
-		
 	end
 
 	hook.easy("InitPostEntity",function()
@@ -183,6 +172,7 @@ if SERVER then
 				doTrace(Vector(0,0,-1)).z
 			)
 			new_ship_info.origin = (new_ship_info.mins+new_ship_info.maxs)/2
+			new_ship_info.components = {}
 
 			local home = ents.Create("prop_physics")
 			home:SetPos(MICRO_HOME_SPOTS[i][1])
@@ -192,6 +182,8 @@ if SERVER then
 			home:Spawn()
 			home:GetPhysicsObject():EnableMotion(false)
 
+			table.insert(MICRO_SHIP_INFO,new_ship_info)
+
 			-- Ship Ent
 			local ship_ent = ents.Create("micro_ship")
 			ship_ent:SetPos(home:GetPos()+Vector(0,0,25))
@@ -200,12 +192,6 @@ if SERVER then
 			ship_ent:SetColor(MICRO_TEAM_COLORS[i])
 			ship_ent:Spawn()
 			ship_ent.home = home
-			ship_ent.info = new_ship_info
-
-			new_ship_info.entity = ship_ent
-
-			--table.insert(MICRO_SHIP_ENTS,ship_ent)
-			table.insert(MICRO_SHIP_INFO,new_ship_info)
 		end
 
 		-- Spawn interiors only after all info is actually ready
@@ -231,6 +217,21 @@ if SERVER then
 		end
 		net.Send(ply)
 	end)
+
+	hook.easy("SetupPlayerVisibility",function(ply)
+		local ship_info = ply:GetShipInfo()
+		if ship_info and IsValid(ship_info.entity) then
+			AddOriginToPVS(ship_info.entity:GetPos())
+		end
+
+		if ply.last_ship_info != ship_info then
+			local old = ply.last_ship_info
+			local new = ship_info
+			hook.Call("micro_changeship",GAMEMODE, ply, old, new)
+		end
+
+		ply.last_ship_info = ship_info
+	end)
 else
 	net.Receive("micro_shipinfo",function()
 		local count = net.ReadUInt(8)
@@ -242,14 +243,62 @@ else
 			MICRO_SHIP_INFO[i].mins = net.ReadVector()
 			MICRO_SHIP_INFO[i].maxs = net.ReadVector()
 			MICRO_SHIP_INFO[i].origin = (MICRO_SHIP_INFO[i].mins+MICRO_SHIP_INFO[i].maxs)/2
+			MICRO_SHIP_INFO[i].components = {}
 		end
 	end)
+
+	hook.easy("PreRender",function()
+		local ship_info = LocalPlayer():GetShipInfo()
+
+		if ship_info and IsValid(ship_info.entity) then
+
+			local origin = ship_info.origin
+
+			local real_pos = ship_info.entity:GetPos()
+			local real_ang = ship_info.entity:GetAngles()
+
+			local eye_pos = LocalPlayer():EyePos()
+			local eye_angs = LocalPlayer():EyeAngles()+LocalPlayer():GetViewPunchAngles()
+
+			local view = hook.Call("CalcView",GAMEMODE, LocalPlayer())
+			if view then
+				eye_pos = view.origin or eye_pos
+			end
+
+			local cam_pos, cam_ang = LocalToWorld((eye_pos-origin)*MICRO_SCALE,eye_angs,real_pos,real_ang)
+
+			MICRO_DRAW_EXTERNAL = true
+			render.SuppressEngineLighting(false)
+			render.RenderView{
+				w=ScrW(),
+				h=ScrH(),
+				x=0,
+				y=0,
+				origin=cam_pos,
+				angles=cam_ang,
+				znear=0.1
+			}
+			MICRO_DRAW_EXTERNAL = false
+
+			render.SuppressEngineLighting(true)
+
+			render.SetModelLighting(BOX_FRONT, .1,.1,.1)
+			render.SetModelLighting(BOX_BACK, .1,.1,.1)
+			render.SetModelLighting(BOX_RIGHT, .1,.1,.1)
+			render.SetModelLighting(BOX_LEFT, .1,.1,.1)
+			if ship_info.entity:IsBroken() then
+				render.SetModelLighting(BOX_TOP, 1,0,0)
+			else
+				render.SetModelLighting(BOX_TOP, 1,1,1)
+			end
+			render.SetModelLighting(BOX_BOTTOM, .1,.1,.1)
+		else
+			render.SuppressEngineLighting(false)
+		end
+	end)
+
+	-- Failsafe to stop lighting from breaking when a client leaves.
+	hook.easy("ShutDown",function()
+		render.SuppressEngineLighting(false)
+	end)
 end
-
-
-
---[[hook.easy("Initialize",function()
-	for i=1,100 do
-		print("rerr")
-	end
-end)]]

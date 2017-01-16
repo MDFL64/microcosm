@@ -11,6 +11,8 @@ ENT.Ammo1Max = 200
 ENT.Ammo2Max = 2
 ENT.Ammo3Max = 8
 
+ENT.drawScreenToHud = true
+
 local sound_fire = Sound("weapons/ar2/fire1.wav")
 local sound_fire_hook = Sound("weapons/crossbow/fire1.wav")
 local sound_fire_hook_nope = Sound("buttons/button2.wav")
@@ -52,15 +54,14 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:sendControls(mv)
+function ENT:sendControls(key_down,key_pressed,key_released,angs)
 
 	if self:IsBroken() then return end
 
-	local angs = mv:GetAngles()
 	
 	local tr = util.TraceLine{start=self.gun:GetPos(),endpos=self.gun:GetPos()+angs:Forward()*10000,filter=self}
 	
-	if mv:KeyPressed(IN_FORWARD) then
+	if key_pressed(IN_FORWARD) then
 		if self:GetSelectedAmmo()==1 then
 			self:SetSelectedAmmo(3)
 		else
@@ -69,14 +70,14 @@ function ENT:sendControls(mv)
 		sound.Play(sound_select,self.gun:GetPos(),75,150,1)
 	end
 
-	if mv:KeyPressed(IN_BACK) then
+	if key_pressed(IN_BACK) then
 		self:SetSelectedAmmo(self:GetSelectedAmmo()%3+1)
 		sound.Play(sound_select,self.gun:GetPos(),75,150,1)
 	end
 	
 	if tr.Entity:IsWorld() then
 		self.gun:SetAngles(angs)
-		self.fire = mv:KeyDown(IN_ATTACK)
+		self.fire = key_down(IN_ATTACK)
 	else
 		self.fire = false
 	end
@@ -107,7 +108,8 @@ function ENT:Think()
 			local angs = self.gun:GetAngles()
 			angs=angs+Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*10
 			angs.p = math.Clamp(angs.p,-30,30)
-			angs.y = math.Clamp(angs.y,base_yaw+60,base_yaw+120)
+			--print(angs.y)
+			angs.y = math.Clamp(angs.y,base_yaw+150,base_yaw+210)
 			--angs.r = math.Clamp(angs.p,-10,10)
 			self.gun:SetAngles(angs)
 		end
@@ -224,7 +226,7 @@ function ENT:drawInfo(ship,broken)
 	local selected = self:GetSelectedAmmo()
 	if broken then selected = math.random(3) end
 
-	draw.SimpleText("->","micro_med",8,32+30*selected,color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+	draw.SimpleText("->","micro_med",12,32+30*selected,color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
 
 	draw.SimpleText("Standard Shells: "..(broken and math.random(self.Ammo1Max) or self:GetAmmo1()).." / "..self.Ammo1Max,"micro_med",40,62,Color(255,100,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
 	

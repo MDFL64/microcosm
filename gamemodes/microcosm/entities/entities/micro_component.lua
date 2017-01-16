@@ -129,7 +129,7 @@ function ENT:drawScreen(ship,broken)
 		local w = self.ComponentScreenWidth
 		local h = self.ComponentScreenHeight
 		for i=1,20 do
-			draw.SimpleText(string.char(math.random(33,126)),"DebugFixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+			draw.SimpleText(string.char(math.random(33,126)),"micro_fixed",5+math.random()*(w-10),5+math.random()*(h-10),color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		end
 	end
 end

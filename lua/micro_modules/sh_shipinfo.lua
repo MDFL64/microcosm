@@ -94,18 +94,15 @@ if SERVER then
 			cannon:Spawn()
 		end
 			
-		local comms_panel = ents.Create("micro_comms")
+		local comms_panel = ents.Create("micro_comp_comms")
 		if ship_design=="ufo" then
 			comms_panel:SetPos(micro_ship_origin+Vector(0,180,0))
-			comms_panel:SetAngles(Angle(90,-90,0))
+			comms_panel:SetAngles(Angle(-90,90,0))
 		else
 			comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
-			comms_panel:SetAngles(Angle(90,-160,0))
+			comms_panel:SetAngles(Angle(-90,30,0))
 		end
 		comms_panel:Spawn()
-		comms_panel.ship = ship_ent
-		ship_ent.comms_ent = comms_panel
-		ship_ent.comms_ent.team = i
 
 		local health_panel = ents.Create("micro_comp_health")
 		if ship_design=="ufo" then
@@ -216,6 +213,21 @@ if SERVER then
 		end
 		net.Send(ply)
 	end)
+
+	hook.easy("SetupPlayerVisibility",function(ply)
+		local ship_info = ply:GetShipInfo()
+		if ship_info and IsValid(ship_info.entity) then
+			AddOriginToPVS(ship_info.entity:GetPos())
+		end
+
+		if ply.last_ship_info != ship_info then
+			local old = ply.last_ship_info
+			local new = ship_info
+			hook.Call("micro_changeship",GAMEMODE, ply, old, new)
+		end
+
+		ply.last_ship_info = ship_info
+	end)
 else
 	net.Receive("micro_shipinfo",function()
 		local count = net.ReadUInt(8)
@@ -286,11 +298,3 @@ else
 		render.SuppressEngineLighting(false)
 	end)
 end
-
-
-
---[[hook.easy("Initialize",function()
-	for i=1,100 do
-		print("rerr")
-	end
-end)]]

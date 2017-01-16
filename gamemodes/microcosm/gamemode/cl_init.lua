@@ -1,21 +1,28 @@
 include( 'shared.lua' )
 
-surface.CreateFont( "micro_big", {
+surface.CreateFont("micro_big", {
 	font = "Verdana",
 	size = 32,
 })
 
-surface.CreateFont( "micro_med", {
+surface.CreateFont("micro_med", {
 	font = "Verdana",
 	size = 24,
 })
 
-surface.CreateFont( "micro_shadow", {
+surface.CreateFont("micro_shadow", {
 	font = "Verdana",
 	size = 16,
 	antialias = false,
 	shadow=true
 })
+
+surface.CreateFont("micro_fixed", {
+	font = "Courier New",
+	size = 16,
+	antialias = false
+})
+
 
 timer.Simple(1,function()
 	local function dereflect(name)

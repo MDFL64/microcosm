@@ -16,8 +16,53 @@ function ENT:GetComponentName()
 	return "Integrity Monitor"
 end
 
+if CLIENT then
+	function ENT:Think()
+		local ship_info = self:GetShipInfo()
+
+		if !IsValid(ship_info.entity) then return end
+
+		local i = 1
+		local broken = self:IsBroken()
+		local alarm = 0
+		local function check(ent)
+			local current = ent:Health()
+
+			if broken then current = math.floor((math.sin(CurTime()+i)/2+.5) *ent:GetMaxHealth()) end
+
+			if ent:CheckBroken(current) then
+				if ent:GetClass()=="micro_ship" then
+					alarm=2
+				else
+					alarm=math.max(alarm,1)
+				end
+			end
+
+			i=i+1
+		end
+
+		check(ship_info.entity)
+
+		for ent,_ in pairs(ship_info.components) do
+			check(ent)
+		end
+
+		if alarm==2 then
+			self.sound_critical:Play()
+		else
+			self.sound_critical:Stop()
+		end
+
+		if alarm==1 then
+			self.sound_alarm:Play()
+			self.sound_alarm:ChangeVolume(.2)
+		else
+			self.sound_alarm:Stop()
+		end
+	end
+end
+
 function ENT:drawInfo(ship,broken)
-	local alarm = 0
 	local i = 1
 
 	local function drawBar(ent)
@@ -44,13 +89,7 @@ function ENT:drawInfo(ship,broken)
 
 		local print_fraction = current.." / "..ent:GetMaxHealth()
 
-		if ent:IsBroken() then
-			if ent:GetClass()=="micro_ship" then
-				alarm=2
-			else
-				alarm=math.max(alarm,1)
-			end
-
+		if ent:CheckBroken(current) then
 			if math.floor(CurTime())%2==0 then
 				print_fraction = "BROKEN!"
 				text_color = Color(255,0,0)
@@ -66,18 +105,5 @@ function ENT:drawInfo(ship,broken)
 
 	for ent,_ in pairs(ship.info.components) do
 		drawBar(ent)
-	end
-
-	if alarm==2 then
-		self.sound_critical:Play()
-	else
-		self.sound_critical:Stop()
-		
-		if alarm==1 then
-			self.sound_alarm:Play()
-			self.sound_alarm:ChangeVolume(.2)
-		else
-			self.sound_alarm:Stop()
-		end
 	end
 end

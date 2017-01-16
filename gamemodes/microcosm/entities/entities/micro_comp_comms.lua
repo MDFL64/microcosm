@@ -144,9 +144,7 @@ if SERVER then
 	--local broken_override = false
 
 	function ENT:Think()
-		if true then return end
-		local hurt = IsComponentHurt(self)
-		if hurt and CurTime()>self.next_broken_message then
+		if self:IsBroken() and CurTime()>self.next_broken_message then
 			self.next_broken_message=CurTime()+math.random(1,5)
 			--broken_override = true
 			local color = HSVToColor(math.random(0,360),1,1)
@@ -230,7 +228,6 @@ else
 	net.Receive("micro_commstext",function()
 		local comms = net.ReadEntity()
 		
-		print(comms)
 		if !IsValid(comms) then return end
 		
 		local clear = net.ReadBool()

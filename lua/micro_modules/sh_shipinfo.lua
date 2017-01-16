@@ -13,8 +13,12 @@ function ENTITY:GetShipInfo()
 	end
 end
 
+function ENTITY:CheckBroken(health)
+	return health < self:GetMaxHealth()*.3
+end
+
 function ENTITY:IsBroken()
-	return self:Health() < self:GetMaxHealth()*.3
+	return self:CheckBroken(self:Health())
 end
 
 if SERVER then

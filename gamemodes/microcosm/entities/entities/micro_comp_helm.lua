@@ -25,7 +25,9 @@ function ENT:drawInfo(ship,broken)
 	surface.DrawOutlinedRect(171,25,30,100) -- pitch
 
 	local function drawDir(ang,letter)
-		if broken then ang=CurTime() end
+		local mults = {N=25,W=100,S=-50,E=-200}
+
+		if broken then ang=ang+CurTime()*mults[letter] end
 		ang = math.NormalizeAngle(ang+180)
 		if ang<60 and ang>-60 then
 			draw.SimpleText(letter,"micro_big",108+ang*.65,39,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
@@ -45,7 +47,9 @@ function ENT:drawInfo(ship,broken)
 	end
 
 	surface.SetDrawColor(Color( 0, 255, 0))
-	surface.DrawRect(172, 74+49*(ship_angs.p/90), 28, 3 )
+	local pitch = ship_angs.p
+	if broken then pitch=math.sin(CurTime())*90 end
+	surface.DrawRect(172, 74+49*(pitch/90), 28, 3 )
 
 	--centers
 	surface.SetDrawColor(Color( 100, 100, 100))

@@ -84,7 +84,7 @@ end
 
 function ENT:drawInfo(ship,broken)
 	local cash = self:GetCash()
-	if broken then cash = math.random(1000,9999) end
+	if broken then cash = math.random(1000000,9999999) end
 
 	draw.SimpleText("$"..cash,"micro_big",88,80,Color(255,255,0),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 	

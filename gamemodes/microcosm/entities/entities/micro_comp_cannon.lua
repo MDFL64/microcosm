@@ -108,7 +108,8 @@ function ENT:Think()
 			local angs = self.gun:GetAngles()
 			angs=angs+Angle(math.random()*2-1,math.random()*2-1,math.random()*2-1)*10
 			angs.p = math.Clamp(angs.p,-30,30)
-			angs.y = math.Clamp(angs.y,base_yaw+60,base_yaw+120)
+			--print(angs.y)
+			angs.y = math.Clamp(angs.y,base_yaw+150,base_yaw+210)
 			--angs.r = math.Clamp(angs.p,-10,10)
 			self.gun:SetAngles(angs)
 		end

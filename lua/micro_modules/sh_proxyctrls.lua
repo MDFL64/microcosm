@@ -88,60 +88,22 @@ hook.easy("StartCommand",function(ply,cmd)
 	end
 end)
 
---[[hook.easy("SetupMove",function(ply,mv,cmd)
-	if !IsValid(ply.proxyctrls_ent) then return end
+if CLIENT then
+	hook.easy("SetupMove",function(ply,mv,cmd)
+		if !IsValid(ply.proxyctrls_ent) then return end
 
-	if SERVER then
-		mv:SetOldButtons(ply.proxyctrls_lastbuttons)
+		mv:SetOldButtons(0)
+		mv:SetButtons(0)
+		mv:SetForwardSpeed(0)
+		mv:SetSideSpeed(0)
+		mv:SetUpSpeed(0)
+	end)
 
-		local ent_okay = IsValid(ply.proxyctrls_ent) and isfunction(ply.proxyctrls_ent.sendControls)
-
-		if 
-			!ply:Alive() or
-			!ent_okay or
-			ply:GetPos():DistToSqr(ply.proxyctrls_ent:GetPos())>150^2 or
-			mv:KeyPressed(IN_USE)
-		then
-
-			if ent_okay then
-				ply.proxyctrls_ent:stopControl()
+	hook.easy("CalcView",function(ply, pos, angles, fov)
+		if IsValid(ply.proxyctrls_ent) then
+			if ply.proxyctrls_ent.controlView then
+				return ply.proxyctrls_ent:controlView(pos,angles,fov)
 			end
-
-			ply:ProxyControls()
-		else
-			mv:SetSideSpeed(-cmd:GetMouseX())
-			mv:SetUpSpeed(cmd:GetMouseY())
-
-			ply.proxyctrls_ent:sendControls(mv)
 		end
-
-		ply.proxyctrls_lastbuttons = mv:GetButtons()
-	end
-
-	--cmd:ClearButtons()
-
-	mv:SetOldButtons(0)
-	mv:SetButtons(0)
-	mv:SetForwardSpeed(0)
-	mv:SetSideSpeed(0)
-	mv:SetUpSpeed(0)
-
-	mv:AddKey(IN_ATTACK)
-	print(mv:GetButtons())
-
-	return true
-
-	--mv:SetVelocity(Vector(0,0,0))
-end)
-
-hook.easy("PlayerUse",function(ply)
-	if IsValid(ply.proxyctrls_ent) then return false end
-end)]]
-
-hook.easy("CalcView",function(ply, pos, angles, fov)
-	if IsValid(ply.proxyctrls_ent) then
-		if ply.proxyctrls_ent.controlView then
-			return ply.proxyctrls_ent:controlView(pos,angles,fov)
-		end
-	end
-end)
+	end)
+end

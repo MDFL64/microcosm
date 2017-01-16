@@ -71,6 +71,35 @@ else
 end
 
 
+--<<<<<<< HEAD
+MICRO_TEAM_NAMES = {"Red","Green","Blue","Yellow",[0]="None"}
+ 
+MICRO_TEAM_COLORS = {
+	Color(255,0,0),
+	Color(0,255,0),
+	Color(0,0,255),
+	Color(255,255,0),
+	[0]=Color(150,150,150)
+}
+
+MICRO_HOME_SPOTS = {
+	{Vector(-2805.373047,-2629.304932,176.031250),Angle(0,90,0)}, -- top of spawn
+	{Vector(-1225.940552,1025.711182,232.031250),Angle(0,-90,0)}, -- above subway
+	{Vector(1089.395142,1840.912476,-203.968750),Angle(0,-90,0)}, -- warehouse
+	{Vector(1888.408936,-1887.610718,-495.968750),Angle(0,180,0)} -- back of train tunnel
+}
+
+for i=1,5 do
+	local n = i%5
+	team.SetUp(i,MICRO_TEAM_NAMES[n],MICRO_TEAM_COLORS[n],false)
+end
+--PrintTable(team.GetAllTeams())
+
+--util.PrecacheSound("ambient/fire/fire_small1.wav")
+
+-- no noclip.  UNLESS sv_cheats = 1 :)
+--=======
+-->>>>>>> unstable
 function GM:PlayerNoClip()
 	return cfg_dev:GetBool()
 end

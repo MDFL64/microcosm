@@ -39,23 +39,29 @@ timer.Simple(1,function()
 	dereflect("phoenix_storms/glass")
 end)
 
-hook.Add("HUDPaint","micro_hud",function()
+hook.easy("PreDrawHUD",function()
 	if !LocalPlayer():Alive() then
+		cam.Start2D()
 		surface.SetDrawColor(Color( 0, 0, 0))
 		surface.DrawRect(0, 0, ScrW(), ScrH())
-		draw.SimpleText("You will respawn shortly.","DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-	else
+		draw.SimpleText("You will respawn shortly.","micro_big",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		cam.End2D()
+	end
+end)
+
+hook.Add("HUDPaint","micro_hud",function()
+	if LocalPlayer():Alive() then
 		local tr = LocalPlayer():GetEyeTrace()
 		if tr.Fraction < .003 and IsValid(tr.Entity) and tr.Entity.GetMicroHudText then
 			local text = tr.Entity:GetMicroHudText()
-			local font = "DermaLarge"
+			local font = "micro_big"
 			
 			surface.SetFont(font)
 			local w,h = surface.GetTextSize(text)
 			w=w+10
 			h=h+10
 			draw.RoundedBox(4,(ScrW()-w)/2,(ScrH()-h)/2,w,h,Color(0,0,0,150))
-			draw.SimpleText(text,"DermaLarge",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+			draw.SimpleText(text,"micro_big",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 
 		end
 	end

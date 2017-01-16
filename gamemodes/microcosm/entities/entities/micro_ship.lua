@@ -111,15 +111,15 @@ function ENT:Think()
 		local hurt = self:IsBroken()
 
 		if (self.ctrl_h!=0 or self.ctrl_v!=0) and !hurt then
-			--self.speaker_strafe:Play()
+			self.speaker_strafe:Play()
 		else
-			--self.speaker_strafe:Stop()
+			self.speaker_strafe:Stop()
 		end
 
 		if self:GetThrottle()!=0 and !hurt then
-			--self.speaker_engine:Play(50+math.abs(self:GetThrottle())*80)
+			self.speaker_engine:Play(50+math.abs(self:GetThrottle())*80)
 		else
-			--self.speaker_engine:Stop()
+			self.speaker_engine:Stop()
 		end
 
 

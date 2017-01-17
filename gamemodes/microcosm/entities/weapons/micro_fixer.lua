@@ -16,6 +16,8 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo		    = "none"
 
+SWEP.Slot = 1
+
 function SWEP:Initialize()
 	if SERVER then
 		local timer_name = "fixer_regen_"..self:EntIndex()

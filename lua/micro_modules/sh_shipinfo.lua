@@ -21,6 +21,13 @@ function ENTITY:IsBroken()
 	return self:CheckBroken(self:Health())
 end
 
+function ENTITY:AddToExternalShip()
+	local info = self:GetShipInfo()
+	info.external_parts[self] = true
+
+	if IsValid(info.entity) then info.entity:ExternalPartAdded(self) end
+end
+
 if SERVER then
 
 	local cfg_shipdesign = CreateConVar("micro_cfg_shipdesigns","std",FCVAR_REPLICATED,"Sets ship design. Must be set on entity init. Cannot be changed during game. See sh_shipinfo.lua for values.")
@@ -42,33 +49,26 @@ if SERVER then
 		end
 		helm:SetAngles(Angle(0,180,0))
 		helm:Spawn()
-		helm.ship = ship_ent
 
 		-- Hull
 		local hull = ents.Create("micro_hull")
-		--SkyLight added some stuff around here, might want to review it and tell him how to make it better
-		if ship_design=="ufo" then --make the UFO model be for the green team! Since there's a hole in the center of the model, you have to spawn a little further forward from it's center to not fall through.
+		if ship_design=="ufo" then
 			hull:SetModel("models/smallbridge/station parts/sbbridgevisort.mdl")
-		else --otherwise, just do what you would have normally! :D
+		else
 			hull:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
 		end
-		-- Always spawn the hull at the same spot.
-		-- Spawn the player differently if we need to.
 		hull:SetPos(micro_ship_origin)
-		hull:SetShip(ship_ent)
 		hull:Spawn()
-		--ship_ent:SetMainHull(hull)
 
-		if ship_design=="ufo" then --again, select for green team's UFO!  Little green men!
+		if ship_design=="ufo" then
 			local door = ents.Create("micro_subhull")
 			door:SetModel("models/props_phx/construct/windows/window4x4.mdl")
-			door:SetPos(micro_ship_origin+Vector(48,-48,-65)) --bottom and centered
+			door:SetPos(micro_ship_origin+Vector(48,-48,-65))
 			door:SetAngles(Angle(0,0,0))
 			door:Spawn()
 
 			local cannon = ents.Create("micro_comp_cannon")
 			cannon:SetPos(micro_ship_origin+Vector(0,0,-60))
-			--cannon:SetAngles(Angle(0,0,0))
 			cannon:SetGunName("Abductor")
 			cannon:Spawn()
 		else
@@ -173,6 +173,7 @@ if SERVER then
 			)
 			new_ship_info.origin = (new_ship_info.mins+new_ship_info.maxs)/2
 			new_ship_info.components = {}
+			new_ship_info.external_parts = {}
 
 			local home = ents.Create("prop_physics")
 			home:SetPos(MICRO_HOME_SPOTS[i][1])
@@ -244,6 +245,7 @@ else
 			MICRO_SHIP_INFO[i].maxs = net.ReadVector()
 			MICRO_SHIP_INFO[i].origin = (MICRO_SHIP_INFO[i].mins+MICRO_SHIP_INFO[i].maxs)/2
 			MICRO_SHIP_INFO[i].components = {}
+			MICRO_SHIP_INFO[i].external_parts = {}
 		end
 	end)
 

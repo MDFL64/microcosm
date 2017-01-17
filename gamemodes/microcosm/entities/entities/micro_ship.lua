@@ -18,16 +18,22 @@ end
 
 function ENT:Initialize()
 
+	MICRO_SHIP_INFO[self:GetShipID()].entity = self
+	self.info = MICRO_SHIP_INFO[self:GetShipID()]
+
+	self.thrust_effect_offsets = {}
+
 	if SERVER then
-		self:PhysicsInitSphere(16,"metal")
+		--[[self:PhysicsInitSphere(16,"metal")
 
 		self:StartMotionController()
 		local phys = self:GetPhysicsObject()
 		if (phys:IsValid()) then
 			phys:EnableGravity(false)
-			--print(">>",phys:GetMass())
 			phys:SetMass(1000)
-		end
+		end]]
+
+		self.rebuild_requested = true
 
 		self.ctrl_v = 0
 		self.ctrl_h = 0
@@ -41,41 +47,84 @@ function ENT:Initialize()
 
 		self:SetHealth(SHIP_HEALTH)
 		self:SetMaxHealth(SHIP_HEALTH)
+	else
+		self.external_client_models = {}
+
+		for ep,_ in pairs(self.info.external_parts) do
+			self:ExternalPartAdded(ep)
+		end
 	end
 
-	MICRO_SHIP_INFO[self:GetShipID()].entity = self
-	self.info = MICRO_SHIP_INFO[self:GetShipID()]
-	-- TODO, check hulls on init!
 
 	self:DrawShadow(false)
 end
 
+function ENT:ExternalPartAdded(ep)
+	if ep.GetThrustEffectOffsets then
+		table.Add(self.thrust_effect_offsets,ep:GetThrustEffectOffsets())
+	end
+
+	if CLIENT then
+		local matrix = Matrix()
+		matrix:Scale(Vector(1,1,1)*MICRO_SCALE)
+
+		local mdl = ClientsideModel(ep:GetModel(),RENDERGROUP_OPAQUE)
+		mdl:SetSkin(ep:GetSkin())
+		mdl:SetNoDraw(true)
+		mdl:EnableMatrix("RenderMultiply",matrix)
+
+		self.external_client_models[ep] = mdl
+	else
+		self.rebuild_requested = true
+	end
+end
+
+function ENT:RebuildCollisions()
+
+	local convexes = {}
+	for ep,_ in pairs(self.info.external_parts) do
+		local phys = ep:GetPhysicsObject()
+		if !phys:IsValid() then continue end
+		local convex = {}
+		for i,v in pairs(phys:GetMesh()) do
+			table.insert(convex,v.pos*MICRO_SCALE)
+		end
+		table.insert(convexes,convex)
+	end
+	self:PhysicsInitMultiConvex(convexes)
+	self:SetMoveType(MOVETYPE_VPHYSICS)
+	self:SetSolid(SOLID_VPHYSICS)
+
+	self:EnableCustomCollisions(true)
+	self:StartMotionController()
+	
+	local phys = self:GetPhysicsObject()
+	-- print(phys:GetVolume()) I WOULD BASE MASS ON THIS BUT I FEEL LIKE THAT COULD CAUSE MORE PROBLEMS THAN IT SOLVES.
+	phys:EnableGravity(false)
+	phys:SetMass(1000)
+
+	self.rebuild_requested = false
+end
 
 --function ENT:DrawTranslucent()
 --	print("ballsack")
 --end
 
 function ENT:Draw()
-	--[[if Entity(MICRO_SHIP_ID or -1)!=self then
-		for _,hull in pairs(self.hulls) do
-			hull:SetRenderOrigin(self:GetPos())
-			hull:SetRenderAngles(self:GetAngles())
+	local ship_info = LocalPlayer():GetShipInfo()
 
-			hull:DrawModel()
-			--print(hull:GetParent())
-			--[[local matrix = Matrix()
-			matrix:Translate(-self:GetInternalOrigin()+self:GetPos())
-			cam.PushModelMatrix(matrix)
-			hull:DrawModel()
-			cam.PopModelMatrix()
-		end
+	if self.info == ship_info then return end
 
-		--self:DrawModel()
-	end]]
+	for ent,mdl in pairs(self.external_client_models) do
+		mdl:SetRenderOrigin(self:LocalToWorld( (ent:GetPos()-self.info.origin)*MICRO_SCALE ))
+		mdl:SetRenderAngles(self:LocalToWorldAngles(ent:GetAngles()))
+
+		mdl:DrawModel()
+	end
 end
 
 function ENT:DrawTranslucent()
-
+	--PrintTable(self.thrust_effect_offsets)
 	local hurt = self:IsBroken()
 
 	if self:GetThrottle()>0 and !hurt then
@@ -83,7 +132,7 @@ function ENT:DrawTranslucent()
 
 		local scroll = -CurTime()*10*throttle
 
-		local offsets = {}--main_hull:GetThrustEffectOffsets()
+		local offsets = self.thrust_effect_offsets
 		local offset_mid = self:GetAngles():Forward()*-10*throttle
 		local offset_end =  self:GetAngles():Forward()*-15*throttle
 
@@ -104,6 +153,10 @@ end
 
 function ENT:Think()
 	if SERVER then
+		if self.rebuild_requested then
+			self:RebuildCollisions()
+		end
+
 		self:PhysWake()
 
 		self:SetThrottle(math.Clamp(self:GetThrottle() + self.ctrl_t*FrameTime()*10,-1,1))
@@ -124,13 +177,15 @@ function ENT:Think()
 
 
 		if !IsValid(self.trail) and self:GetThrottle()>0 and !hurt then
-			local offset = Vector(-10,0,0) --main_hull:GetThrustEffectOffsets()[1]
+			local offset = self.thrust_effect_offsets[1]
 
-			self.trail = ents.Create("micro_trail")
-			self.trail:SetParent(self)
-			self.trail:SetLocalPos(offset)
-			self.trail:Spawn()
-			self.trail:Setup(self:GetColor())
+			if offset!=nil then
+				self.trail = ents.Create("micro_trail")
+				self.trail:SetParent(self)
+				self.trail:SetLocalPos(offset)
+				self.trail:Spawn()
+				self.trail:Setup(self:GetColor())
+			end
 		end
 
 		if IsValid(self.trail) and (self:GetThrottle()<=0 or hurt) then

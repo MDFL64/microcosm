@@ -30,7 +30,7 @@ if SERVER then
 				if !IsValid(info.entity) then continue end
 
 				local dist = info.entity:GetPos():Distance(self:GetPos())
-				if dist<250 then
+				if dist<150 then
 					self:FireBullets{
 						Src=self:GetPos(),
 						Dir=info.entity:GetPos()-self:GetPos(),

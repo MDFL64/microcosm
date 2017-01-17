@@ -40,7 +40,7 @@ function ENT:Initialize()
 	BaseClass.Initialize(self)
 
 	if SERVER then
-		self.gun = ents.Create("prop_dynamic")
+		self.gun = ents.Create("micro_detail")
 		self.gun:SetModel("models/slyfo/rover_snipercannon.mdl")
 		self.gun:SetPos(self:LocalToWorld(Vector(0,0,-50))) -- originally 0,50,50
 		self.gun:Spawn()
@@ -147,7 +147,7 @@ function ENT:Think()
 			elseif self:GetSelectedAmmo()==2 then
 				if self:GetAmmo2()>0 then
 
-					local tr = util.TraceLine{start=start_pos,endpos=start_pos+start_ang:Forward()*200,filter=ship_info.entity}
+					local tr = util.TraceLine{start=start_pos,endpos=start_pos+start_ang:Forward()*100,filter=ship_info.entity}
 
 					--if tr.HitWorld then
 					--    tr.Entity = game.GetWorld()
@@ -158,7 +158,8 @@ function ENT:Think()
 						tr.Entity:Use(ship_info.entity,ship_info.entity,USE_ON,1)
 						self:SetAmmo2(self:GetAmmo2()-1)
 
-						local pos1 = ship_info.entity:GetPos()
+						-- fuck it, it's fucked, it is what it is
+						local pos1 = ship_info.entity:LocalToWorld(ship_info.entity:GetPhysicsObject():GetMassCenter())
 						local pos2 = tr.HitPos
 
 						local rope_len = pos1:Distance(pos2)

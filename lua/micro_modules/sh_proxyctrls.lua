@@ -106,4 +106,19 @@ if CLIENT then
 			end
 		end
 	end)
+
+	local vm_hide_amount = 0
+
+	hook.easy("CalcViewModelView",function(wep, vm, oldPos, oldAng, pos, ang)
+		local speed = 5
+		if IsValid(wep.Owner.proxyctrls_ent) then
+			vm_hide_amount = math.min(vm_hide_amount+FrameTime()*speed,1)
+		else
+			vm_hide_amount = math.max(vm_hide_amount-FrameTime()*speed,0)
+		end
+
+		if vm_hide_amount>0 then
+			return pos, ang+Angle(vm_hide_amount^2 *20,0,0)
+		end
+	end)
 end

@@ -81,6 +81,7 @@ end
 -- SEEN 2: 5NITES@GAZEBOOK.com
 -- [parakeet is on facebook reading his wall and spots rare fazebook telephone post. Hours 12:00am high nude]
 -- Sky: Please stop praying for genij's tekeporter!!! it is too strong and has escaped the hospital!! it too powerful!!!! (the teleporter's range needs to be limited)
+--		Sent from my ObamaPhone.
 -- [parakeet looks into camera that is on compute all weird like]
 -- [laughing sounds]
 -- [scene end]

@@ -52,9 +52,11 @@
 -- [scene fades to african-american and crowd keeps laughing long time until quiet.]
 
 --[[
-todo:	(Help me) Make it so teleporter sound only plays once
-		add teleporter animation?  Like, a bunch of blue text that fills up its box.
-		(We should, in sh_shipinfo.lua) add location for UFO? Normal one could be
+todo:	(Help me) There is an error when you're not on a team and have not yet joined each team.
+			To get around this you have to join each team once.
+		(Help me) Make it so teleporter sound only plays once
+		add teleporter animation?  Like, a bunch of blue text that fills up its client display box.
+		(We, in sh_shipinfo.lua) add location for UFO? Normal one could be:
 		local tele = ents.Create("micro_comp_teleporter")
 		tele:SetPos(micro_ship_origin+Vector(-200,-225,0)) --when facing forward, this is in the lower, back, right of the ship
 		tele:Spawn()

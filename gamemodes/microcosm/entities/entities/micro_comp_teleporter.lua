@@ -51,37 +51,44 @@
 -- Parakeet: r u sure ur not a homosex?
 -- [scene fades to african-american and crowd keeps laughing long time until quiet.]
 
+--[[
+todo:	(Help me) Make it so teleporter sound only plays once
+		add teleporter animation?  Like, a bunch of blue text that fills up its box.
+		(We should, in sh_shipinfo.lua) add location for UFO? Normal one could be
+		local tele = ents.Create("micro_comp_teleporter")
+		tele:SetPos(micro_ship_origin+Vector(-200,-225,0)) --when facing forward, this is in the lower, back, right of the ship
+		tele:Spawn()
+--]]
+
 AddCSLuaFile()
+
+MICRO_SHIP_INFO = MICRO_SHIP_INFO or {}
 
 DEFINE_BASECLASS("micro_component")
 ENT.Base = "micro_component"
 
 ENT.ComponentModel = "models/props_wasteland/interior_fence002e.mdl"
-ENT.ComponentScreenWidth = 180
-ENT.ComponentScreenHeight = 90
-ENT.ComponentScreenOffset = Vector(24,-22.5,46)
+ENT.ComponentScreenWidth = 230 --180
+ENT.ComponentScreenHeight = 100 --90
+ENT.ComponentScreenOffset = Vector(2,-27,55)
 ENT.ComponentScreenRotation = Angle(0,90,90)
 
+local sound_in_range = Sound("npc/overwatch/radiovoice/preparetoreceiveverdict.wav")
 
---local sound_add = Sound("ambient/levels/canals/windchime2.wav") --sik meme
-local sound_buy = Sound("ambient/levels/citadel/weapon_disintegrate2.wav")
+--variables to change for gameplay
+local max_teleport_distance = 125
+local number_of_ships_in_gamemode = 4
+--if number of ships changes, you'll have to change how ENT:Think(ply) get teams!
+--end variables to change for gameplay
+
 local team_ply_origin = Vector(0,0,0)
 local player_at_home = true
 local which_tele_is_closest = 0
 local team_number = 0
 local teleporter_distance = 0
 local teleporter_distance_closest = 9999999
-
-print( team.GetName( Entity( 1 ):Team() ) )
-if team.GetName( Entity( 1 ):Team() ) == "Red" then
-	team_number = 1
-elseif team.GetName( Entity( 1 ):Team() ) == "Green" then
-	team_number = 2
-elseif team.GetName( Entity( 1 ):Team() ) == "Blue" then
-	team_number = 3
-elseif team.GetName( Entity( 1 ):Team() ) == "Yellow" then
-	team_number = 4
-end
+local display_teleporter_closest = 9999999
+local is_within_range = false
 
 function ENT:GetComponentName()
 	return "Teleporter"
@@ -91,8 +98,6 @@ function ENT:Initialize()
 	BaseClass.Initialize(self)
 end
 
---so the problem with this, is that it will keep teleportering the player back and forth.  It'll go to team 2, then back to team 1, then to team 4. 
-
 -- SEEN 2: 5NITES@GAZEBOOK.com
 -- [parakeet is on facebook reading his wall and spots rare fazebook telephone post. Hours 12:00am high nude]
 -- Sky: Please stop praying for genij's tekeporter!!! it is too strong and has escaped the hospital!! it too powerful!!!! (the teleporter's range needs to be limited)
@@ -100,66 +105,81 @@ end
 -- [parakeet looks into camera that is on compute all weird like]
 -- [laughing sounds]
 -- [scene end]
-
 function ENT:Use(ply)
 	--AYYYYY
-
 	if not self:IsBroken() then
+		local micro_ship_origin = self:GetShipInfo().origin
+		-- SEAN 3: DEBUGGING
+		-- [group arrives at construction site with hard (hats) on. hours 8:08am.]
+		-- [group look confuse on face]
+		-- [group turn and leave]
+		-- [cut to commercial. then when they get back show credits.]
 
-		--print(team_number)
-		for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
-			local micro_ship_origin = origin_ent:GetPos()
-			-- SEAN 3: DEBUGGING
-			-- [group arrives at construction site with hard (hats) on. hours 8:08am.]
-			-- [group look confuse on face]
-			-- [group turn and leave]
-			-- [cut to commercial. then when they get back show credits.]
-
-			--print(ship)
-			--print(micro_ship_origin)
-
-			--so the coords are each origin+-200,0,0
-			--print(team)
-			
-			if not player_at_home then --check to see if any are in range. maybe edit micro_ship for a function to check if far away.
-				print("telehome "..i)
-				ply:SetPos(team_ply_origin)
-				player_at_home = true
-			elseif player_at_home && which_tele_is_closest == i then --same as above
-				print("teleaway "..i)
-				team_ply_origin = ply:GetPos()
-				ply:SetPos(micro_ship_origin)
-				player_at_home = false
+		--print(which_tele_is_closest)
+		if not player_at_home then
+			--print("telehome "..which_tele_is_closest)
+			ply:SetPos(team_ply_origin)
+			player_at_home = true
+		elseif player_at_home && which_tele_is_closest > 0 && which_tele_is_closest < number_of_ships_in_gamemode+1 then
+			--print("teleaway "..which_tele_is_closest)
+			team_ply_origin = ply:GetPos()
+			for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
+				if i == which_tele_is_closest then
+					ply:SetPos(origin_ent:GetPos())
+				end
 			end
+			player_at_home = false
 		end
 	end
 end
 
-function ENT:Think(ply) --get smallest distance away
+
+function ENT:Think(ply) --hey screw u parakeet, I TOTALLY CAN PASS PLY INTO ENT:THINK() GET OWN3D NERD
+						--get smallest distance away
+	--7:17 AM - 0x5f3759df: you can use ent:GetShipInfo()
+	--7:18 AM - 0x5f3759df: to get the ship info a player or entity is on
+	--i couldn't figure out how xD
+
 	teleporter_distance_closest = 9999999
-	for i=1,4 do --4 is the number of ships in gamemode
+	if team.GetName( Entity( 1 ):Team() ) == "Red" then
+		team_number = 1
+	elseif team.GetName( Entity( 1 ):Team() ) == "Green" then
+		team_number = 2
+	elseif team.GetName( Entity( 1 ):Team() ) == "Blue" then
+		team_number = 3
+	elseif team.GetName( Entity( 1 ):Team() ) == "Yellow" then
+		team_number = 4
+	end
+	for i=1,number_of_ships_in_gamemode do --4 is the number of ships in gamemode
+		--print("in loop ".. i)
 		if i != team_number then
-			teleporter_distance = SHIP_INFO[team_number].entity:GetPos():Distance(SHIP_INFO[i].entity:GetPos())
-			if teleporter_distance < 300 && teleporter_distance < teleporter_distance_closest then
+			teleporter_distance = MICRO_SHIP_INFO[team_number].entity:GetPos():Distance(MICRO_SHIP_INFO[i].entity:GetPos()) --derps if you do not go to each ship.
+			--print(teleporter_distance)
+			if teleporter_distance < max_teleport_distance && teleporter_distance <= teleporter_distance_closest then
 				teleporter_distance_closest = teleporter_distance
 				which_tele_is_closest = i
+				is_within_range = true
+				--print("which_tele_is_closest ".. which_tele_is_closest)
+			elseif is_within_range && teleporter_distance_closest >= max_teleport_distance then
+				is_within_range = false
+				which_tele_is_closest = 0
 			end
 		end
 	end
+	--probably want to change or remove this if statement entirely. it makes it so the sound continously plays when in range...
+	if teleporter_distance_closest <= max_teleport_distance then 
+		self:EmitSound(sound_in_range)
+	end	
 end
 
+
 function ENT:isInRange()
-	if teleporter_distance_closest < 300 then
+	if teleporter_distance_closest <= max_teleport_distance then
 		return true
 	else
 		return false
 	end
 end
-
---[[
-local tr = util.TraceLine{start=self:GetPos(),endpos=self:GetPos()+Vector(0,0,-30),filter=self}
-	self:SetIsHome(tr.Entity==self.home)
---]]
 
 if CLIENT then
 	function ENT:GetScreenText()
@@ -167,7 +187,7 @@ if CLIENT then
 		local hurt = self:IsBroken()
 
 		if hurt then
-			return "HONK!",Color(255,0,255)
+			return "Genij place telepoty?",Color(255,0,255)
 		elseif ship:GetIsHome() then
 			return "Home",Color(0,255,0)
 		elseif self:isInRange() then
@@ -176,6 +196,11 @@ if CLIENT then
 			return "Not In Range",Color(255,0,0)
 		end
 	end
+end
+
+function ENT:drawInfo(ship,broken)
+	local text,text_color = self:GetScreenText()
+	draw.SimpleText(text,"micro_big",115,80,text_color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 end
                                                                                                                                                                                                  
 --[[  KREDITS                                                                                                                                                                                                  

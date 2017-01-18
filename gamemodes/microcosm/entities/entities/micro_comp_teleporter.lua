@@ -58,7 +58,7 @@ ENT.Base = "micro_component"
 
 ENT.ComponentModel = "models/props_wasteland/interior_fence002e.mdl"
 ENT.ComponentScreenWidth = 180
-ENT.ComponentScreenHeight = 45
+ENT.ComponentScreenHeight = 90
 ENT.ComponentScreenOffset = Vector(24,-22.5,46)
 ENT.ComponentScreenRotation = Angle(0,90,90)
 
@@ -67,6 +67,21 @@ ENT.ComponentScreenRotation = Angle(0,90,90)
 local sound_buy = Sound("ambient/levels/citadel/weapon_disintegrate2.wav")
 local team_ply_origin = Vector(0,0,0)
 local player_at_home = true
+local which_tele_is_closest = 0
+local team_number = 0
+local teleporter_distance = 0
+local teleporter_distance_closest = 9999999
+
+print( team.GetName( Entity( 1 ):Team() ) )
+if team.GetName( Entity( 1 ):Team() ) == "Red" then
+	team_number = 1
+elseif team.GetName( Entity( 1 ):Team() ) == "Green" then
+	team_number = 2
+elseif team.GetName( Entity( 1 ):Team() ) == "Blue" then
+	team_number = 3
+elseif team.GetName( Entity( 1 ):Team() ) == "Yellow" then
+	team_number = 4
+end
 
 function ENT:GetComponentName()
 	return "Teleporter"
@@ -90,18 +105,7 @@ function ENT:Use(ply)
 	--AYYYYY
 
 	if not self:IsBroken() then
-		local team_number = 0
 
-		print( team.GetName( Entity( 1 ):Team() ) )
-		if team.GetName( Entity( 1 ):Team() ) == "Red" then
-			team_number = 1
-		elseif team.GetName( Entity( 1 ):Team() ) == "Green" then
-			team_number = 2
-		elseif team.GetName( Entity( 1 ):Team() ) == "Blue" then
-			team_number = 3
-		elseif team.GetName( Entity( 1 ):Team() ) == "Yellow" then
-			team_number = 4
-		end
 		--print(team_number)
 		for i,origin_ent in pairs(ents.FindByName("micro_ship_*")) do
 			local micro_ship_origin = origin_ent:GetPos()
@@ -116,17 +120,39 @@ function ENT:Use(ply)
 
 			--so the coords are each origin+-200,0,0
 			--print(team)
-			if player_at_home && i != team_number then --check to see if any are in range. maybe edit micro_ship for a function to check if far away.
+			
+			if not player_at_home then --check to see if any are in range. maybe edit micro_ship for a function to check if far away.
+				print("telehome "..i)
+				ply:SetPos(team_ply_origin)
+				player_at_home = true
+			elseif player_at_home && which_tele_is_closest == i then --same as above
 				print("teleaway "..i)
 				team_ply_origin = ply:GetPos()
 				ply:SetPos(micro_ship_origin)
 				player_at_home = false
-			elseif not player_at_home then --same as above
-				print("telehome "..i)
-				ply:SetPos(team_ply_origin)
-				player_at_home = true
 			end
 		end
+	end
+end
+
+function ENT:Think(ply) --get smallest distance away
+	teleporter_distance_closest = 9999999
+	for i=1,4 do --4 is the number of ships in gamemode
+		if i != team_number then
+			teleporter_distance = SHIP_INFO[team_number].entity:GetPos():Distance(SHIP_INFO[i].entity:GetPos())
+			if teleporter_distance < 300 && teleporter_distance < teleporter_distance_closest then
+				teleporter_distance_closest = teleporter_distance
+				which_tele_is_closest = i
+			end
+		end
+	end
+end
+
+function ENT:isInRange()
+	if teleporter_distance_closest < 300 then
+		return true
+	else
+		return false
 	end
 end
 
@@ -135,12 +161,6 @@ local tr = util.TraceLine{start=self:GetPos(),endpos=self:GetPos()+Vector(0,0,-3
 	self:SetIsHome(tr.Entity==self.home)
 --]]
 
-function ENT:CheckBlocked()
-	local r = 18
-	local tr = util.TraceHull{start=self:GetItemSpawn(),endpos=self:GetItemSpawn(),mins=Vector(-1,-1,-1)*r, maxs=Vector(1,1,1)*r, filter=self}
-	return tr.Hit
-end
-
 if CLIENT then
 	function ENT:GetScreenText()
 		local ship = self:GetShipInfo().entity
@@ -148,12 +168,12 @@ if CLIENT then
 
 		if hurt then
 			return "HONK!",Color(255,0,255)
-		elseif self:CheckBlocked() then
-			return "Blocked",Color(255,0,0)
 		elseif ship:GetIsHome() then
-			return "Ready",Color(0,255,0)
+			return "Home",Color(0,255,0)
+		elseif self:isInRange() then
+			return "In Range",Color(0,255,0)
 		else
-			return "Not Docked",Color(255,0,0)
+			return "Not In Range",Color(255,0,0)
 		end
 	end
 end

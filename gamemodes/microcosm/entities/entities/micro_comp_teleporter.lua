@@ -141,6 +141,7 @@ function ENT:Think(ply) --hey screw u parakeet, I TOTALLY CAN PASS PLY INTO ENT:
 	--7:17 AM - 0x5f3759df: you can use ent:GetShipInfo()
 	--7:18 AM - 0x5f3759df: to get the ship info a player or entity is on
 	--i couldn't figure out how xD
+	if CLIENT then return end
 
 	teleporter_distance_closest = 9999999
 	if team.GetName( Entity( 1 ):Team() ) == "Red" then

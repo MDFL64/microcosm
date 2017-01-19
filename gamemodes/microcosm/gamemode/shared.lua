@@ -67,11 +67,12 @@ local cfg_dev
 if SERVER then
 	cfg_dev = CreateConVar("micro_cfg_dev","0",FCVAR_REPLICATED,"Enables noclip, fast respawn, and other developer features.")
 else
-	cfg_dev = GetConVar("micro_cfg_dev")
+	-- meh
+	--cfg_dev = GetConVar("micro_cfg_dev")
 end
 
 function GM:PlayerNoClip()
-	return cfg_dev:GetBool()
+	return GetConVar("micro_cfg_dev"):GetBool()
 end
 
 if SERVER then

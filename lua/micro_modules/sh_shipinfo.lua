@@ -152,7 +152,12 @@ if SERVER then
 	hook.easy("InitPostEntity",function()
 		--print("hi!")
 
+		for _,v in pairs(ents.FindByClass("info_target")) do
+			print(v,v:GetName())
+		end
+
 		for i,base_ent in pairs(ents.FindByName("micro_ship_*")) do
+			print("===>",i,base_ent)
 			local new_ship_info = {}
 			local base = base_ent:GetPos()
 

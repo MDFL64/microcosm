@@ -149,11 +149,19 @@ if SERVER then
 		ship_ent.speaker_engine = spk
 	end
 
+	hook.easy("AcceptInput",function(ent, input, activator, caller, value )
+		print("io",ent,input,activator,caller,value)
+	end)
+
 	hook.easy("InitPostEntity",function()
 		--print("hi!")
 
 		for _,v in pairs(ents.FindByClass("info_target")) do
 			print(v,v:GetName())
+		end
+
+		for _,v in pairs(ents.FindByClass("point_clientcommand")) do
+			print("cmd",v,v:GetName())
 		end
 
 		for i,base_ent in pairs(ents.FindByName("micro_ship_*")) do

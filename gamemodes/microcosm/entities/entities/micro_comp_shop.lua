@@ -107,7 +107,7 @@ local items = {
 	{
 		name="Reload Guns",
 		desc="Fully loads both cannons.",
-		cost=50,
+		cost=25,
 		pv="models/items/ammocrate_ar2.mdl",
 		func = function(ship)
 			ship:ReloadGuns()

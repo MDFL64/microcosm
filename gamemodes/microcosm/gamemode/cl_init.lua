@@ -45,6 +45,9 @@ hook.easy("PreDrawHUD",function()
 		surface.SetDrawColor(Color( 0, 0, 0))
 		surface.DrawRect(0, 0, ScrW(), ScrH())
 		draw.SimpleText("You will respawn shortly.","micro_big",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Hit F1 or type /help to view help.","micro_med",ScrW()/2,ScrH()/2+30,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Hit F2 or type /team to switch teams.","micro_med",ScrW()/2,ScrH()/2+60,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Hit F3 or type /steam to join the steam group.","micro_med",ScrW()/2,ScrH()/2+90,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 		cam.End2D()
 	end
 end)
@@ -133,6 +136,10 @@ function MICRO_SHOW_TEAM()
 			end
 		end
 	end
+end
+
+function MICRO_SHOW_STEAM()
+	gui.OpenURL("http://steamcommunity.com/groups/paramicro")
 end
 
 function GM:OnPlayerChat(player, text, bTeamOnly, bPlayerIsDead)

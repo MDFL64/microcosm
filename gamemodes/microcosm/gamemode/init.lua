@@ -116,6 +116,10 @@ function GM:ShowTeam(ply)
 	ply:SendLua("MICRO_SHOW_TEAM()")
 end
 
+function GM:ShowSpare1(ply)
+	ply:SendLua("MICRO_SHOW_STEAM()")
+end
+
 concommand.Add("micro_jointeam",function(ply,_,args)
 	local team = tonumber(args[1])
 	if isnumber(team) and team>=0 and team<=4 then
@@ -138,14 +142,14 @@ function GM:PlayerInitialSpawn(ply)
 end
 
 function GM:PlayerCanHearPlayersVoice(listener, talker)
-	if listener:Alive() and talker:Alive() and listener:Team() == talker:Team() then
+	if listener:Alive() and talker:Alive() and listener:GetShipInfo() == talker:GetShipInfo() then
 		return true, true
 	end
 	return false,false
 end
 
 function GM:PlayerCanSeePlayersChat(text, teamOnly, listener, talker)
-	if listener:Alive() and talker:Alive() and listener:Team() == talker:Team() then
+	if listener:Alive() and talker:Alive() and listener:GetShipInfo() == talker:GetShipInfo() then
 		return true
 	end
 	return false
@@ -157,6 +161,9 @@ function GM:PlayerSay( talker, text, teamOnly )
 		return ""
 	elseif text=="/help" or text=="!help" then
 		talker:SendLua("MICRO_SHOW_HELP()")
+		return ""
+	elseif text=="/steam" or text=="!steam" then
+		talker:SendLua("MICRO_SHOW_STEAM()")
 		return ""
 	end
 	return text

@@ -128,6 +128,13 @@ local items = {
 		ent="micro_item_medkit"
 	},
 	{
+		name="Armor Kit",
+		desc="Restores 200 crew armor.",
+		cost=50,
+		pv="models/items/battery.mdl",
+		ent="micro_item_armorkit"
+	},
+	{
 		name="Standard Cannon Shells",
 		desc="Reloads 200 standard cannon shells.",
 		cost=10,

@@ -5,7 +5,7 @@ AddCSLuaFile()
 ENT.Base = "micro_item"
 
 ENT.ItemName = "Armor Kit"
-ENT.ItemModel = "models/Items/battery.mdl"
+ENT.ItemModel = "models/items/battery.mdl"
 ENT.MaxCount = 200
  
 local sound_armorup = Sound("items/battery_pickup.wav")

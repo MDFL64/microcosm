@@ -130,6 +130,13 @@ local items = {
 		ent="micro_item_medkit"
 	},
 	{
+		name="Armor Kit",
+		desc="Restores 200 crew armor.",
+		cost=50,
+		pv="models/items/battery.mdl",
+		ent="micro_item_armorkit"
+	},
+	{
 		name="Standard Cannon Shells",
 		desc="Reloads 200 standard cannon shells.",
 		cost=10,
@@ -149,6 +156,27 @@ local items = {
 		cost=5,
 		pv="models/dav0r/buttons/button.mdl",
 		ent="micro_item_shell_3"
+	},
+	{
+		name="Collectable Food",
+		desc="Exotic food that restores health! It's 1 of 11 collectable foods. Collect them all!",
+		cost=50,
+		pv="models/slyfo_2/acc_food_meatsandwich.mdl",
+		ent="micro_item_collectable_food"
+	},
+	{
+		name="Collectable Toy",
+		desc="A ball, a doll, or something special. Contains 1 of 6. Collect them all!",
+		cost=100,
+		pv="models/props/de_tides/vending_turtle.mdl",
+		ent="micro_item_collectable_toys"
+	},
+	{
+		name="Collectable Decoration",
+		desc="Show off loot in your richie-rich spaceship! Contains 1 of 11. Collect them all!",
+		cost=500,
+		pv="models/maxofs2d/gm_painting.mdl",
+		ent="micro_item_collectable_deco"
 	}
 }
 

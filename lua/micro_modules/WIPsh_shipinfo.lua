@@ -13,18 +13,12 @@ function ENTITY:GetShipInfo()
 	end
 end
 
---[[function ENTITY:CheckBroken(health,)
+function ENTITY:CheckBroken(health)
 	return health < self:GetMaxHealth()*.3
-end]]
+end
 
 function ENTITY:IsBroken()
-	local frac = .3
-
-	if self:GetClass()=="micro_ship" then
-		frac=.1
-	end
-
-	return self:Health() < self:GetMaxHealth()*frac
+	return self:CheckBroken(self:Health())
 end
 
 function ENTITY:AddToExternalShip()
@@ -47,104 +41,115 @@ if SERVER then
 		thing:SetAngles(Angle(-80,0,0))
 		thing:Spawn()]]
 
-		local helm = ents.Create("micro_comp_helm")
-		if ship_design=="ufo" then
-			helm:SetPos(micro_ship_origin+Vector(170,0,-57))
-		else
-			helm:SetPos(micro_ship_origin+Vector(480,0,10))
-		end
-		helm:SetAngles(Angle(0,180,0))
-		helm:Spawn()
-
-		-- Hull
+		--hull
 		local hull = ents.Create("micro_hull")
-		if ship_design=="ufo" then
-			hull:SetModel("models/smallbridge/station parts/sbbridgevisort.mdl")
-		else
-			hull:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
-		end
-		hull:SetPos(micro_ship_origin)
-		hull:Spawn()
+		--helm
+		local helm = ents.Create("micro_comp_helm")
+		--comms_panel
+		local comms_panel = ents.Create("micro_comp_comms")
+		--health_panel
+		local health_panel = ents.Create("micro_comp_health")
+		--shop
+		local shop = ents.Create("micro_comp_shop")
+		--nav
+		local nav = ents.Create("micro_comp_navigator")
+		--tele
+		local tele = ents.Create("micro_comp_teleporter")
 
-		if ship_design=="ufo" then
+		if ship_design=="ufo" then --This is the UFO ship
+
+			--door1
 			local door = ents.Create("micro_subhull")
 			door:SetModel("models/props_phx/construct/windows/window4x4.mdl")
 			door:SetPos(micro_ship_origin+Vector(48,-48,-65))
 			door:SetAngles(Angle(0,0,0))
 			door:Spawn()
-
+			--cannon1
 			local cannon = ents.Create("micro_comp_cannon")
 			cannon:SetPos(micro_ship_origin+Vector(0,0,-60))
 			cannon:SetGunName("Abductor")
 			cannon:Spawn()
-		else
+			--hull
+			hull:SetModel("models/smallbridge/station parts/sbbridgevisort.mdl")
+			--helm
+			helm:SetPos(micro_ship_origin+Vector(170,0,-57))
+			--comms_panel
+			comms_panel:SetPos(micro_ship_origin+Vector(0,180,0))
+			comms_panel:SetAngles(Angle(-90,90,0))
+			--health_panel
+			health_panel:SetPos(micro_ship_origin+Vector(0,-180,0))
+			health_panel:SetAngles(Angle(-90,-90,0))
+			--shop
+			shop:SetPos(micro_ship_origin+Vector(-150,0,0))
+			--nav
+			nav:SetPos(micro_ship_origin+Vector(50,-60,30))
+			nav:SetAngles(Angle(-90,0,0))
+			--tele (none)
+
+
+		else --This is the default ship
+		
+			--door1
 			local door = ents.Create("micro_subhull")
 			door:SetModel("models/smallbridge/ship parts/sbhulldsp.mdl")
 			door:SetPos(micro_ship_origin+Vector(0,316,0))
 			door:SetSkin(1)
 			door:Spawn()
-
+			--door2
 			local door = ents.Create("micro_subhull")
 			door:SetModel("models/smallbridge/ship parts/sbhulldsp.mdl")			
 			door:SetPos(micro_ship_origin+Vector(0,-316,0))
 			door:SetAngles(Angle(0,180,0))
 			door:SetSkin(1)
 			door:Spawn()
-
+			--cannon1
 			local cannon = ents.Create("micro_comp_cannon")
 			cannon:SetPos(micro_ship_origin+Vector(0,310,0))
 			cannon:SetAngles(Angle(-90,90,0))
 			cannon:SetGunName("Port")
 			cannon:Spawn()
-
+			--cannon2
 			local cannon = ents.Create("micro_comp_cannon")
 			cannon:SetPos(micro_ship_origin+Vector(0,-310,0))
 			cannon:SetAngles(Angle(-90,-90,0))
 			cannon:SetGunName("Starboard")
 			cannon:Spawn()
-		end
-			
-		local comms_panel = ents.Create("micro_comp_comms")
-		if ship_design=="ufo" then
-			comms_panel:SetPos(micro_ship_origin+Vector(0,180,0))
-			comms_panel:SetAngles(Angle(-90,90,0))
-		else
+			--hull
+			hull:SetModel("models/smallbridge/ships/hysteria_galapagos.mdl")
+			--helm
+			helm:SetPos(micro_ship_origin+Vector(480,0,10))
+			--comms_panel
 			comms_panel:SetPos(micro_ship_origin+Vector(0,110,122))
 			comms_panel:SetAngles(Angle(-90,30,0))
-		end
-		comms_panel:Spawn()
-
-		local health_panel = ents.Create("micro_comp_health")
-		if ship_design=="ufo" then
-			health_panel:SetPos(micro_ship_origin+Vector(0,-180,0))
-			health_panel:SetAngles(Angle(-90,-90,0))
-		else
+			--health_panel
 			health_panel:SetPos(micro_ship_origin+Vector(-200,180,122))
 			health_panel:SetAngles(Angle(-90,90,0))
-		end
-		health_panel:Spawn()
-
-		local shop = ents.Create("micro_comp_shop")
-		if ship_design=="ufo" then
-			shop:SetPos(micro_ship_origin+Vector(-150,0,0))
-		else
+			--shop
 			shop:SetPos(micro_ship_origin+Vector(-422,0,8))
-		end
-		shop:Spawn()
-
-		local nav = ents.Create("micro_comp_navigator")
-		if ship_design=="ufo" then
-			nav:SetPos(micro_ship_origin+Vector(50,-60,30))
-			nav:SetAngles(Angle(-90,0,0))
-		else
+			--nav
 			nav:SetPos(micro_ship_origin+Vector(110,-50,110))
 			nav:SetAngles(Angle(-70,0,0))
-		end
-		nav:Spawn()
+			--tele
+			tele:SetPos(micro_ship_origin+Vector(-200,-225,0))
+			tele:Spawn()
 
-		local tele = ents.Create("micro_comp_teleporter")
-		tele:SetPos(micro_ship_origin+Vector(-200,-225,0))
-		tele:Spawn()
+		end --All below exist in all ship types
+			
+		--hull
+		hull:SetPos(micro_ship_origin)
+		hull:Spawn()
+		--helm
+		helm:SetAngles(Angle(0,180,0))
+		helm:Spawn()
+		--comms_panel
+		comms_panel:Spawn()
+		--health_panel
+		health_panel:Spawn()
+		--shop
+		shop:Spawn()
+		--nav
+		nav:Spawn()
+		--tele (none)
 
 		local spk = ents.Create("micro_speaker")
 		spk:SetPos(micro_ship_origin+Vector(0,0,-100))
@@ -159,19 +164,11 @@ if SERVER then
 		ship_ent.speaker_engine = spk
 	end
 
-	hook.easy("AcceptInput",function(ent, input, activator, caller, value )
-		print("io",ent,input,activator,caller,value)
-	end)
-
 	hook.easy("InitPostEntity",function()
 		--print("hi!")
 
 		for _,v in pairs(ents.FindByClass("info_target")) do
 			print(v,v:GetName())
-		end
-
-		for _,v in pairs(ents.FindByClass("point_clientcommand")) do
-			print("cmd",v,v:GetName())
 		end
 
 		for i,base_ent in pairs(ents.FindByName("micro_ship_*")) do

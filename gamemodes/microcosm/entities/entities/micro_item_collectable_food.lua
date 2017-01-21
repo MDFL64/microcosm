@@ -9,30 +9,33 @@ ENT.ItemName = "Exotic Food"
 ENT.ItemModel = "models/Items/BoxMRounds.mdl"
 ENT.MaxCount = 100
 
-local sound_unpacking = Sound("items/smallmedkit1.wav")
+local sound_eat = Sound("npc/headcrab_fast/headbite.wav")
+local sound_unpacking = Sound("physics/cardboard/cardboard_box_break1.wav")
 
 local food = {"models/noesis/donut.mdl","models/slyfo/cup_noodle.mdl","models/slyfo_2/acc_food_meatplate.mdl","models/slyfo_2/acc_food_meatsandwich.mdl",
             "models/slyfo_2/acc_food_meatsandwichhalf.mdl","models/slyfo_2/acc_food_snckspacemix.mdl","models/slyfo_2/acc_food_snckstridernugs.mdl",
             "models/props_junk/watermelon01.mdl","models/props_junk/garbage_takeoutcarton001a.mdl","models/props_junk/garbage_plasticbottle001a.mdl",
             "models/props_junk/PopCan01a.mdl"}
 
-local is_broken = false
 
 function ENT:Use(ply)
-	local hp_needed = ply:GetMaxHealth() - ply:Health()
-	local hp_taken = self:TryTake(hp_needed)
     
-    if not is_broken then
+    if not self.is_broken then
+        self:EmitSound(sound_unpacking)
         self:SetModel(food[math.random(#food)])
-        is_broken = true
+        -- im not going to bother with unfucking the collisions for now...
+        self.is_broken = true
+        return
     end
 
+	local hp_needed = ply:GetMaxHealth() - ply:Health()
+	local hp_taken = self:TryTake(hp_needed)
+
 	if hp_taken>0 then
-		self:EmitSound(sound_unpacking)
+		self:EmitSound(sound_eat)
 		ply:SetHealth(ply:Health()+hp_taken)
 	end
 
-    self:EmitSound(sound_unpacking)
 end
 
 --in by default?

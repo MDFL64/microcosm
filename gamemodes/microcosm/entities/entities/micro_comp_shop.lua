@@ -177,7 +177,29 @@ local items = {
 		cost=500,
 		pv="models/maxofs2d/gm_painting.mdl",
 		ent="micro_item_collectable_deco"
+	},
+	{
+		name="Manhack",
+		desc="Want a challenge? Try sharing your ship with a few of these!",
+		cost=500,
+		pv="models/manhack.mdl",
+		ent="npc_manhack"
+	},
+	{
+		name="Rollermine",
+		desc="beep boop",
+		cost=500,
+		pv="models/roller.mdl",
+		ent="npc_rollermine"
 	}
+	--[[,
+	{
+		name="Scanner Buddy",
+		desc="This one can't hurt you so I'm making it cost even more.",
+		cost=10,
+		pv="models/Combine_Scanner.mdl",
+		ent="npc_cscanner"
+	},]]
 }
 
 if SERVER then

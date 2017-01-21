@@ -5,12 +5,16 @@ ENT.Type = "anim"
 ENT.RenderGroup = RENDERGROUP_BOTH
 
 local SHIP_HEALTH = 2000
+ENT.MaxHookHealth = 500
+ENT.CritTime = 60
 
 local matFire = Material("effects/fire_cloud1")
 
 function ENT:SetupDataTables()
 	--self:NetworkVar("Vector", 0, "InternalOrigin")
 	self:NetworkVar("Int", 0, "ShipID")
+	self:NetworkVar("Int", 1, "HookHealth")
+	self:NetworkVar("Int", 2, "KillTime")
 	self:NetworkVar("Float", 0, "Throttle")
 	self:NetworkVar("Bool", 0, "IsHome")
 	self:NetworkVar("Bool", 1, "IsHooked")
@@ -106,10 +110,6 @@ function ENT:RebuildCollisions()
 	self.rebuild_requested = false
 end
 
---function ENT:DrawTranslucent()
---	print("ballsack")
---end
-
 function ENT:Draw()
 	local ship_info = LocalPlayer():GetShipInfo()
 
@@ -124,7 +124,6 @@ function ENT:Draw()
 end
 
 function ENT:DrawTranslucent()
-	--PrintTable(self.thrust_effect_offsets)
 	local hurt = self:IsBroken()
 
 	if self:GetThrottle()>0 and !hurt then
@@ -148,11 +147,87 @@ function ENT:DrawTranslucent()
 		end
 	end
 
+	local ship_info = LocalPlayer():GetShipInfo()
+
+	if self.info == ship_info then return end
+
+	if self:GetIsHome() then
+		render.DrawWireframeSphere(self:GetPos(),24,6,6,self:GetColor(),true)
+	end
+
 	--render.DrawScreenQuad()
 end
 
+local function id() end
+
+local reset_whitelist = {
+	info_target = id, -- we can actually safely delete this, but W/E
+
+	micro_hull = id,
+	micro_subhull = id,
+	micro_detail = id,
+	micro_speaker = id,
+
+	micro_comp_cannon = function(ent)
+		ent.fire = false
+	end,
+
+	micro_comp_shop = function(ent)
+		ent:SetCash(math.max(ent:GetCash()/2,ent.StartingCash))
+	end,
+
+	micro_comp_comms = function(ent)
+		ent.text_lines = {}
+	end,
+
+	player = function(ent)
+		ent:Kill()
+		ent.last_ship_info = nil
+	end
+}
+
+local sound_dead = Sound("ambient/explosions/explode_1.wav")
+
 function ENT:Think()
 	if SERVER then
+		if self:IsBroken() and CurTime()>self:GetKillTime() then
+			-- Reset everything, pretty jank. In future just nuke everything and respawn.
+			BroadcastComms(Color(255,0,255),"CENTRAL >>> ",MICRO_TEAM_COLORS[self:GetShipID()],string.upper(MICRO_TEAM_NAMES[self:GetShipID()]),Color(255,0,255)," GOT BLOWN UP! SAVAGE!")
+			
+			self:RepairAll()
+			self:ReloadGuns()
+			self:SetThrottle(0)
+			self:UnHook()
+
+			self.ctrl_v = 0
+			self.ctrl_h = 0
+
+			self.ctrl_p = 0
+			self.ctrl_y = 0
+
+			self.ctrl_t = 0
+
+			-- kill stray ropes
+			for _,c in pairs(constraint.FindConstraints(self,"Rope")) do
+				if IsValid(c.Constraint) then c.Constraint:Remove() end
+			end
+
+			for _,ent in pairs(ents.FindInBox(self.info.mins,self.info.maxs)) do
+
+				local f = reset_whitelist[ent:GetClass()]
+				if f then
+					f(ent)
+				elseif ent:GetClass():sub(1,10) != "micro_comp" then
+					ent:Remove()
+				end
+			end
+
+			self:SetPos(self.home:GetPos()+Vector(0,0,25))
+			self:SetAngles(self.home:GetAngles())
+
+			sound.Play(sound_dead,self.info.origin)
+		end
+
 		if self.rebuild_requested then
 			self:RebuildCollisions()
 		end
@@ -243,6 +318,7 @@ local sounds_impact = {
 local sound_crash = Sound("vehicles/v8/vehicle_impact_heavy1.wav")
 local sound_unhook = Sound("npc/attack_helicopter/aheli_mine_drop1.wav")
 
+
 local damage_whitelist = {
 	micro_ship=true,
 	micro_artifact=true
@@ -253,7 +329,7 @@ function ENT:OnTakeDamage(dmg)
 
 	if IsValid(attacker) and damage_whitelist[attacker:GetClass()] then
 		local pos = self:WorldToLocal(dmg:GetDamagePosition())
-		sound.Play(table.Random(sounds_impact),self.info.origin+pos/MICRO_SCALE)--,75,100,1)
+		sound.Play(table.Random(sounds_impact),self.info.origin+pos/MICRO_SCALE)
 		self:ApplyDamage(dmg:GetDamage())
 	end
 end
@@ -276,6 +352,7 @@ end
 function ENT:UnHook()
 	if self:GetIsHooked() then
 		self:SetIsHooked(false)
+		self:SetHookHealth(0)
 		for _,v in pairs(self.hook_ents) do
 			if IsValid(v) then
 				v:Remove()
@@ -290,7 +367,21 @@ if SERVER then
 	local debug_class
 
 	function ENT:ApplyDamage(dmg,iter)
+		if self:GetIsHome() then return end
+
 		iter = iter or 1
+
+		if iter==1 then
+			local hook_hp = self:GetHookHealth()
+			if hook_hp>0 then
+				hook_hp = hook_hp-dmg
+				if hook_hp<=0 then
+					self:UnHook()
+				else
+					self:SetHookHealth(hook_hp)
+				end
+			end
+		end
 
 		local damaged_ent
 		
@@ -327,7 +418,11 @@ if SERVER then
 			if damaged_ent:IsPlayer() then
 				damaged_ent:TakeDamage(dmg)
 			else
+				local was_broken = damaged_ent:IsBroken()
 				damaged_ent:SetHealth(math.max(hp - dmg,0))
+				if damaged_ent == self and !was_broken and damaged_ent:IsBroken() then
+					self:SetKillTime(math.floor(CurTime()+self.CritTime))
+				end
 			end
 
 			dmg = dmg-hp

@@ -9,12 +9,8 @@ local sound_important = Sound("ambient/alarms/klaxon1.wav")
 
 function ENT:Initialize()
 	BaseClass.Initialize(self)
-	
-	if SERVER then
-		self.text_lines = {}
-	else
-		self.text_lines = {}
-	end
+
+	self.text_lines = {}
 
 	if SERVER then
 		self.next_broken_message = 0
@@ -171,6 +167,7 @@ if SERVER then
 		for i=1,#args/2 do
 			local chunk = {color=args[i*2-1],text=args[i*2]}
 			if not IsColor(chunk.color) or not isstring(chunk.text) then
+				print(chunk.color,chunk.text)
 				error("AddText arguments wrong!")
 			end
 			table.insert(chunks, chunk)

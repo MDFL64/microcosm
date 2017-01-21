@@ -13,12 +13,18 @@ function ENTITY:GetShipInfo()
 	end
 end
 
-function ENTITY:CheckBroken(health)
+--[[function ENTITY:CheckBroken(health,)
 	return health < self:GetMaxHealth()*.3
-end
+end]]
 
 function ENTITY:IsBroken()
-	return self:CheckBroken(self:Health())
+	local frac = .3
+
+	if self:GetClass()=="micro_ship" then
+		frac=.1
+	end
+
+	return self:Health() < self:GetMaxHealth()*frac
 end
 
 function ENTITY:AddToExternalShip()

@@ -8,7 +8,7 @@ ENT.ComponentScreenHeight = 180
 ENT.ComponentScreenOffset = Vector(22.5,45,4)
 
 ENT.Ammo1Max = 200
-ENT.Ammo2Max = 2
+ENT.Ammo2Max = 4
 ENT.Ammo3Max = 8
 
 ENT.drawScreenToHud = true
@@ -165,8 +165,14 @@ function ENT:Think()
 						local rope_len = pos1:Distance(pos2)
 
 						local a,b = constraint.Rope(ship_info.entity,tr.Entity,0,0,ship_info.entity:WorldToLocal(pos1),tr.Entity:WorldToLocal(pos2),rope_len,0,0,.1,"cable/cable2.vmt",false)
+						
 						if a then table.insert(ship_info.entity.hook_ents,a) end
 						if b then table.insert(ship_info.entity.hook_ents,b) end
+						
+						if !ship_info.entity:GetIsHooked() then
+							ship_info.entity:SetHookHealth(ship_info.entity.MaxHookHealth)
+						end
+
 						ship_info.entity:SetIsHooked(true)
 					else
 						sound.Play(sound_fire_hook_nope,self.gun:GetPos(),75,100,1)

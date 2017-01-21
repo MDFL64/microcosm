@@ -65,11 +65,12 @@ if SERVER then
 						hit = true
 						self:SetColor(info.entity:GetColor())
 					else
+						print(string.upper(team.GetName(info.entity:GetShipID())))
+						BroadcastComms(Color(255,0,255),"CENTRAL >>> ",MICRO_TEAM_COLORS[info.entity:GetShipID()],string.upper(MICRO_TEAM_NAMES[info.entity:GetShipID()]),Color(255,0,255)," HAS RECOVERED AN ARTIFACT!")
 						self:Remove()
 					end
 				end
 			end
-
 			if !hit then
 				self:SetColor(Color(255,0,255))
 			end

@@ -161,7 +161,7 @@ if SERVER then
 	end
 
 	hook.easy("AcceptInput",function(ent, input, activator, caller, value )
-		print("io",ent,input,activator,caller,value)
+		--print("io",ent,input,activator,caller,value)
 	end)
 
 	hook.easy("InitPostEntity",function()

@@ -72,7 +72,11 @@ else
 end
 
 function GM:PlayerNoClip()
-	return GetConVar("micro_cfg_dev"):GetBool()
+	if SERVER then
+		return GetConVar("micro_cfg_dev"):GetBool()
+	else
+		return false
+	end
 end
 
 if SERVER then

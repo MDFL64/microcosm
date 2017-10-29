@@ -40,16 +40,24 @@ timer.Simple(1,function()
 end)
 
 hook.easy("PreDrawHUD",function()
+	cam.Start2D()
 	if !LocalPlayer():Alive() then
-		cam.Start2D()
 		surface.SetDrawColor(Color( 0, 0, 0))
 		surface.DrawRect(0, 0, ScrW(), ScrH())
 		draw.SimpleText("You will respawn shortly.","micro_big",ScrW()/2,ScrH()/2,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-		draw.SimpleText("Press F1 or type /help to view help.","micro_med",ScrW()/2,ScrH()/2+60,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-		draw.SimpleText("Press F2 or type /team to switch teams.","micro_med",ScrW()/2,ScrH()/2+90,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-		draw.SimpleText("Press F3 or type /steam to join the steam group.","micro_med",ScrW()/2,ScrH()/2+120,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-		cam.End2D()
 	end
+	if LocalPlayer():Team()==5 then
+		surface.SetDrawColor(Color( 255, 0, 255))
+		surface.DrawRect(ScrW()/2-250, ScrH()-150, 500, 150)
+		surface.SetDrawColor(Color( 0, 0, 0))
+		surface.DrawRect(ScrW()/2-247, ScrH()-147, 494, 150)
+		draw.SimpleText("Welcome to the playtest!","micro_big",ScrW()/2,ScrH()-130,Color(255,0,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Press F1 or type /help to view help.","micro_med",ScrW()/2,ScrH()-90,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Press F2 or type /team to switch teams.","micro_med",ScrW()/2,ScrH()-60,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("Press F3 or type /steam to join the steam group.","micro_med",ScrW()/2,ScrH()-30,Color(255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+	end
+	cam.End2D()
+
 end)
 
 hook.Add("HUDPaint","micro_hud",function()
